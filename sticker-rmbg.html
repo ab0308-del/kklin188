@@ -7,33 +7,31 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg:      #1a1a2e;
-  --panel:   #16213e;
-  --card:    #0f3460;
-  --green:   #4caf50;
-  --green2:  #2e7d32;
-  --purple:  #7c4dff;
-  --purple2: #4527a0;
-  --teal:    #00838f;
-  --teal2:   #006064;
-  --red:     #c62828;
-  --red2:    #b71c1c;
-  --text:    #e0e0e0;
-  --muted:   #9e9e9e;
-  --border:  #263238;
-  --accent:  #00e5ff;
+  --bg:     #1a1a2e;
+  --panel:  #16213e;
+  --card:   #0f3460;
+  --green:  #4caf50;
+  --green2: #2e7d32;
+  --purple: #7c4dff;
+  --purple2:#4527a0;
+  --teal:   #00838f;
+  --teal2:  #006064;
+  --red:    #c62828;
+  --text:   #e0e0e0;
+  --muted:  #9e9e9e;
+  --border: #263238;
+  --accent: #00e5ff;
 }
-html, body { height: 100%; }
+html, body { height: 100%; overflow: hidden; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* ── Upload Screen ── */
+/* ── Upload Screen ─────────────────────────────── */
 #uploadScreen {
   flex: 1;
   display: flex;
@@ -46,8 +44,7 @@ body {
 #uploadScreen h1 { font-size: 2rem; font-weight: 800; color: var(--accent); }
 #uploadScreen p  { color: var(--muted); }
 .drop-zone {
-  width: 100%;
-  max-width: 520px;
+  width: 100%; max-width: 520px;
   border: 2px dashed #37474f;
   border-radius: 16px;
   padding: 60px 30px;
@@ -62,11 +59,19 @@ body {
 .drop-zone strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
 .drop-zone span { font-size: 0.8rem; color: var(--muted); }
 
-/* ── Editor Screen ── */
+/* ── Editor Screen ─────────────────────────────── */
 #editorScreen {
   display: none;
   flex-direction: column;
-  height: 100vh;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Top: canvas + controls */
+#topSection {
+  display: flex;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -79,279 +84,180 @@ body {
   align-items: flex-start;
   justify-content: flex-start;
   position: relative;
-}
-#canvasContainer {
-  position: relative;
-  display: inline-block;
   cursor: crosshair;
-  flex-shrink: 0;
 }
-#imgCanvas   { display: block; }
-#selCanvas   { position: absolute; inset: 0; pointer-events: none; }
+#canvasContainer { position: relative; display: inline-block; flex-shrink: 0; }
+#imgCanvas { display: block; }
+#selCanvas { position: absolute; inset: 0; pointer-events: none; }
 
-/* ── Bottom Controls ── */
-#bottomPanel {
+/* Controls panel */
+#controlsPanel {
+  width: 250px;
+  flex-shrink: 0;
   background: var(--panel);
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Info bar */
 .info-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-.coord-group {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
+  flex-direction: column;
+  gap: 8px;
 }
-.coord-group label { color: var(--muted); white-space: nowrap; }
-.coord-group input {
-  width: 68px;
+.coord-row { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+.coord-row label { color: var(--muted); width: 14px; flex-shrink: 0; }
+.coord-row input {
+  width: 62px;
   background: #263238;
   border: 1px solid #37474f;
   border-radius: 6px;
   color: var(--text);
-  padding: 4px 7px;
-  font-size: 0.82rem;
+  padding: 4px 6px;
+  font-size: 0.8rem;
   font-family: monospace;
 }
-.coord-group input:focus { outline: none; border-color: var(--accent); }
+.coord-row input:focus { outline: none; border-color: var(--accent); }
 
-.spacer { flex: 1; }
+.meta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.8rem; }
+.counter { color: var(--accent); font-weight: 700; white-space: nowrap; }
 
-.toggle-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-.toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+/* Toggle */
+.toggle-wrap { display: flex; align-items: center; gap: 6px; }
+.toggle { position: relative; display: inline-block; width: 36px; height: 20px; }
 .toggle input { opacity: 0; width: 0; height: 0; }
-.tslider {
-  position: absolute; inset: 0;
-  background: #37474f;
-  border-radius: 22px;
-  transition: .2s;
-  cursor: pointer;
-}
-.tslider::before {
-  content: '';
-  position: absolute;
-  width: 16px; height: 16px;
-  left: 3px; top: 3px;
-  background: #fff;
-  border-radius: 50%;
-  transition: .2s;
-}
+.tslider { position: absolute; inset: 0; background: #37474f; border-radius: 20px; transition: .2s; cursor: pointer; }
+.tslider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
 .toggle input:checked + .tslider { background: var(--green); }
-.toggle input:checked + .tslider::before { transform: translateX(18px); }
+.toggle input:checked + .tslider::before { transform: translateX(16px); }
 
-.counter {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--accent);
-  white-space: nowrap;
-}
-.counter .num { font-size: 1.1rem; }
-
-.del-btns { display: flex; gap: 4px; }
-.del-btns button {
-  width: 26px; height: 26px;
-  background: #263238;
-  border: 1px solid #37474f;
-  border-radius: 6px;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: .15s;
-  display: flex; align-items: center; justify-content: center;
-}
-.del-btns button:hover { background: var(--red); color: #fff; border-color: var(--red); }
-
-/* Action buttons */
-.btn-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-  padding: 10px 14px;
-}
-.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-
+/* Buttons */
+.btn-grid { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; }
+.btn-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: .15s;
-  white-space: nowrap;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 9px 10px;
+  border-radius: 7px; font-size: 0.83rem; font-weight: 700;
+  border: none; cursor: pointer; transition: .15s; white-space: nowrap;
 }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
-.btn-purple { background: linear-gradient(135deg, var(--purple), var(--purple2)); color: #fff; }
+.btn-purple { background: linear-gradient(135deg,var(--purple),var(--purple2)); color:#fff; }
 .btn-purple:hover:not(:disabled) { filter: brightness(1.15); }
-.btn-green  { background: linear-gradient(135deg, var(--green),  var(--green2));  color: #fff; }
+.btn-green  { background: linear-gradient(135deg,var(--green),var(--green2)); color:#fff; }
 .btn-green:hover:not(:disabled)  { filter: brightness(1.15); }
-.btn-teal   { background: linear-gradient(135deg, var(--teal),   var(--teal2));   color: #fff; }
+.btn-teal   { background: linear-gradient(135deg,var(--teal),var(--teal2)); color:#fff; }
 .btn-teal:hover:not(:disabled)   { filter: brightness(1.15); }
 .btn-dark   { background: #263238; color: var(--text); border: 1px solid #37474f; }
 .btn-dark:hover:not(:disabled)   { background: #37474f; }
-.btn-red    { background: linear-gradient(135deg, var(--red), var(--red2)); color: #fff; }
+.btn-red    { background: linear-gradient(135deg,var(--red),#b71c1c); color:#fff; }
 .btn-red:hover:not(:disabled)    { filter: brightness(1.15); }
 
-/* ── Params panel ── */
-#paramsToggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
-  cursor: pointer;
+/* Params panel */
+.params-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; cursor: pointer;
   border-top: 1px solid var(--border);
-  font-size: 0.82rem;
-  color: var(--muted);
-  user-select: none;
+  font-size: 0.78rem; color: var(--muted); user-select: none;
 }
-#paramsToggle:hover { color: var(--text); }
-#paramsBody {
-  display: none;
-  padding: 12px 14px;
-  border-top: 1px solid var(--border);
-  background: var(--bg);
-}
-#paramsBody.open { display: block; }
+.params-toggle:hover { color: var(--text); }
+.params-body { display: none; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--bg); }
+.params-body.open { display: block; }
+.param-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; font-size: 0.78rem; }
+.param-row label { width: 80px; flex-shrink: 0; color: var(--muted); }
+.param-row input[type=range] { flex: 1; height: 4px; accent-color: var(--accent); cursor: pointer; }
+.param-row .pval { width: 32px; text-align: right; color: var(--accent); font-variant-numeric: tabular-nums; }
 
-.param-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  font-size: 0.82rem;
-}
-.param-row label { width: 90px; flex-shrink: 0; color: var(--muted); }
-.param-row input[type=range] {
-  flex: 1;
-  height: 4px;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-.param-row .pval { width: 36px; text-align: right; color: var(--accent); font-variant-numeric: tabular-nums; }
-.param-row .toggle-wrap { margin-left: auto; }
-
-/* ── Gallery overlay ── */
-#galleryBtn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 52px; height: 52px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #000;
-  font-size: 1.3rem;
-  font-weight: 800;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0,229,255,.4);
-  z-index: 100;
-  display: none;
-}
-#galleryDrawer {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  max-height: 55vh;
-  background: var(--panel);
+/* ── Bottom: 16-slot sticker preview ───────────── */
+#previewSection {
+  height: 200px;
+  flex-shrink: 0;
+  background: #0d1b2a;
   border-top: 2px solid var(--border);
-  z-index: 90;
-  transform: translateY(100%);
-  transition: transform .25s;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
-#galleryDrawer.open { transform: translateY(0); }
-
-.gallery-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
+.preview-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 14px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-.gallery-header h3 { font-size: 0.9rem; color: var(--accent); }
-#gallery {
+.preview-header h3 { font-size: 0.8rem; color: var(--accent); font-weight: 700; letter-spacing: .04em; }
+.preview-header .hdr-right { display: flex; gap: 8px; align-items: center; }
+#stickerGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 8px;
-  padding: 12px;
-  overflow-y: auto;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 4px;
+  padding: 6px 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
   flex: 1;
+  align-items: center;
 }
-.sticker-cell {
-  background: repeating-conic-gradient(#263238 0% 25%, #1a1a2e 0% 50%) 0 0 / 12px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+@media (max-width: 900px) {
+  #stickerGrid { grid-template-columns: repeat(8, 1fr); overflow-y: auto; }
+  #previewSection { height: 260px; }
+}
+.slot {
+  background: repeating-conic-gradient(#1e3040 0% 25%, #0d1b2a 0% 50%) 0 0 / 10px 10px;
+  border: 1.5px dashed #2d4050;
+  border-radius: 6px;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  cursor: pointer;
-  transition: .15s;
+  transition: border-color .15s;
+  min-height: 0;
 }
-.sticker-cell:hover { border-color: var(--accent); }
-.sticker-cell canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
-.sticker-cell .rm-btn {
-  position: absolute; top: 3px; right: 3px;
-  width: 18px; height: 18px;
-  background: rgba(198,40,40,.85);
-  border: none; border-radius: 50%;
-  color: #fff; font-size: 0.65rem;
-  cursor: pointer;
-  display: none;
-  align-items: center; justify-content: center;
+.slot.filled { border-color: #37474f; border-style: solid; }
+.slot.filled:hover { border-color: var(--accent); }
+.slot canvas { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.slot .slot-num {
+  position: absolute; top: 2px; left: 3px;
+  font-size: 0.6rem; color: #546e7a; font-weight: 700; line-height: 1;
+  pointer-events: none;
 }
-.sticker-cell:hover .rm-btn { display: flex; }
+.slot .slot-empty-icon { font-size: 1.1rem; opacity: .2; pointer-events: none; }
+.slot.processing { border-color: #ffd54f; border-style: solid; animation: pulse .8s ease-in-out infinite alternate; }
+@keyframes pulse { from { opacity:.6; } to { opacity:1; } }
 
-/* Layout: side-by-side on wide screens */
-@media (min-width: 680px) {
-  #editorScreen { flex-direction: row; }
-  #canvasWrap { flex: 1; height: 100vh; }
-  #bottomPanel {
-    width: 260px;
-    flex-shrink: 0;
-    border-top: none;
-    border-left: 1px solid var(--border);
-    overflow-y: auto;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  .info-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
-  #galleryDrawer { left: auto; right: 0; width: 260px; max-height: 100vh; transform: translateX(100%); border-top: none; border-left: 2px solid var(--border); }
-  #galleryDrawer.open { transform: translateX(0); }
-  #galleryBtn { display: none !important; }
+.slot-actions {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.6);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.slot.filled:hover .slot-actions { display: flex; }
+.slot-actions button {
+  font-size: 0.68rem; font-weight: 700;
+  padding: 3px 8px; border-radius: 4px; border: none; cursor: pointer;
+}
+.slot-actions .dl-btn { background: var(--accent); color: #000; }
+.slot-actions .rm-btn { background: var(--red); color: #fff; }
+
+/* Mobile: controls below canvas */
+@media (max-width: 660px) {
+  #topSection { flex-direction: column; }
+  #controlsPanel { width: 100%; height: auto; border-left: none; border-top: 1px solid var(--border); }
+  #previewSection { height: 180px; }
+  #stickerGrid { grid-template-columns: repeat(8, 1fr); }
 }
 </style>
 </head>
 <body>
 
-<!-- ── Upload Screen ── -->
+<!-- ══ Upload Screen ══ -->
 <div id="uploadScreen">
   <h1>✂️ LINE 貼圖裁切去背神器</h1>
-  <p>上傳一整張貼圖圖片，自動偵測 4×4 格並一鍵去背打包</p>
+  <p>上傳整張貼圖圖片，自動偵測 4×4 格，去背後打包下載</p>
   <div class="drop-zone" id="dropZone">
     <input type="file" id="mainFileInput" accept="image/*">
     <div class="icon">🖼️</div>
@@ -360,178 +266,240 @@ body {
   </div>
 </div>
 
-<!-- ── Editor Screen ── -->
+<!-- ══ Editor Screen ══ -->
 <div id="editorScreen">
 
-  <!-- Canvas -->
-  <div id="canvasWrap">
-    <div id="canvasContainer">
-      <canvas id="imgCanvas"></canvas>
-      <canvas id="selCanvas"></canvas>
+  <!-- Top: canvas + controls -->
+  <div id="topSection">
+
+    <!-- Canvas -->
+    <div id="canvasWrap">
+      <div id="canvasContainer">
+        <canvas id="imgCanvas"></canvas>
+        <canvas id="selCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div id="controlsPanel">
+
+      <!-- Coordinates -->
+      <div class="info-bar">
+        <div class="coord-row">
+          <label>X</label><input type="number" id="inX" value="0" min="0">
+          <label>Y</label><input type="number" id="inY" value="0" min="0">
+        </div>
+        <div class="coord-row">
+          <label>寬</label><input type="number" id="inW" value="0" min="1">
+          <label>高</label><input type="number" id="inH" value="0" min="1">
+        </div>
+        <div class="meta-row">
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" id="keepBg"><span class="tslider"></span></label>
+            <span style="font-size:.78rem;color:var(--muted)">保留背景</span>
+          </div>
+          <span class="counter">已儲存 <span id="savedCount">0</span> / 16</span>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="btn-grid">
+        <button class="btn btn-purple" id="autoDetectBtn">✦ 自動偵測貼圖</button>
+        <button class="btn btn-green"  id="manualCropBtn">✂ 手動裁切並加入</button>
+        <div class="btn-row2">
+          <button class="btn btn-dark" id="uploadNextBtn">↑ 上傳下一張</button>
+          <input type="file" id="nextFileInput" accept="image/*" style="display:none">
+          <button class="btn btn-dark" id="resetSelBtn">↺ 重設框選</button>
+        </div>
+        <button class="btn btn-teal"  id="downloadZipBtn">↓ 下載 ZIP</button>
+        <div class="btn-row2">
+          <button class="btn btn-red"  id="clearBtn">✕ 清空</button>
+          <button class="btn btn-dark" id="redoAllBtn">↺ 全部重來</button>
+        </div>
+      </div>
+
+      <!-- Parameters -->
+      <div class="params-toggle" id="paramsToggle">
+        <span>⚙ 去背參數設定</span>
+        <span id="paramsArrow">▼</span>
+      </div>
+      <div class="params-body" id="paramsBody">
+        <div class="param-row">
+          <label>背景顏色</label>
+          <input type="color" id="bgColor" value="#ffffff"
+            style="width:34px;height:26px;border:1px solid #37474f;border-radius:6px;background:none;cursor:pointer;padding:2px;">
+          <button id="autoDetectBgBtn" style="background:#263238;border:1px solid #37474f;border-radius:6px;color:var(--muted);padding:3px 7px;cursor:pointer;font-size:0.72rem;">自動偵測</button>
+        </div>
+        <div class="param-row">
+          <label>去背容許值</label>
+          <input type="range" id="tolerance" min="0" max="100" value="30">
+          <span class="pval" id="tolVal">30</span>
+        </div>
+        <div class="param-row">
+          <label>白邊寬度</label>
+          <input type="range" id="borderWidth" min="0" max="30" value="4">
+          <span class="pval" id="bdrVal">4</span>&nbsp;px
+        </div>
+        <div class="param-row">
+          <label>自動置中</label>
+          <div class="toggle-wrap"><label class="toggle"><input type="checkbox" id="autoCenter" checked><span class="tslider"></span></label></div>
+        </div>
+        <div class="param-row">
+          <label>強制正方形</label>
+          <div class="toggle-wrap"><label class="toggle"><input type="checkbox" id="forceSquare"><span class="tslider"></span></label></div>
+        </div>
+        <div class="param-row">
+          <label>去除孔洞</label>
+          <div class="toggle-wrap"><label class="toggle"><input type="checkbox" id="removeHoles" checked><span class="tslider"></span></label></div>
+        </div>
+      </div>
+
+      <div style="flex:1"></div>
     </div>
   </div>
 
-  <!-- Right / Bottom Panel -->
-  <div id="bottomPanel">
-
-    <!-- Coordinates + toggles -->
-    <div class="info-bar">
-      <div class="coord-group">
-        <label>X</label><input type="number" id="inX" value="0" min="0">
-        <label>Y</label><input type="number" id="inY" value="0" min="0">
-      </div>
-      <div class="coord-group">
-        <label>寬</label><input type="number" id="inW" value="0" min="1">
-        <label>高</label><input type="number" id="inH" value="0" min="1">
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="toggle-wrap">
-          <label class="toggle">
-            <input type="checkbox" id="keepBg">
-            <span class="tslider"></span>
-          </label>
-          <span>保留背景</span>
-        </div>
-        <div class="counter">已儲存 <span class="num" id="savedCount">0</span> / 32</div>
-        <div class="del-btns">
-          <button title="刪除最後一張" onclick="removeLast()">−</button>
-          <button title="刪除選取" onclick="removeSelected()">×</button>
-          <button title="刪除全部" onclick="clearAll()">⌫</button>
-        </div>
+  <!-- Bottom: 16-slot sticker preview -->
+  <div id="previewSection">
+    <div class="preview-header">
+      <h3>🗂 貼圖預覽（共 16 張）</h3>
+      <div class="hdr-right">
+        <button class="btn btn-dark" style="padding:4px 10px;font-size:0.75rem;" onclick="clearAll()">✕ 清空</button>
+        <button class="btn btn-teal" style="padding:4px 10px;font-size:0.75rem;" id="dlAllBtn">↓ 下載 ZIP</button>
       </div>
     </div>
-
-    <!-- Action buttons -->
-    <div class="btn-grid">
-      <button class="btn btn-purple" id="autoDetectBtn">✦ 自動偵測貼圖</button>
-      <button class="btn btn-green"  id="manualCropBtn">✂ 手動裁切並加入</button>
-      <div class="btn-row">
-        <button class="btn btn-dark" id="uploadNextBtn">↑ 上傳下一張</button>
-        <input type="file" id="nextFileInput" accept="image/*" style="display:none">
-        <button class="btn btn-dark" id="resetSelBtn">↺ 重設框選</button>
-      </div>
-      <button class="btn btn-teal"  id="downloadZipBtn">↓ 下載 ZIP</button>
-      <div class="btn-row">
-        <button class="btn btn-red"  id="clearBtn">✕ 清空</button>
-        <button class="btn btn-dark" id="redoAllBtn">↺ 全部重來</button>
-      </div>
-    </div>
-
-    <!-- Parameters panel -->
-    <div id="paramsToggle" onclick="toggleParams()">
-      <span>⚙ 去背參數設定</span>
-      <span id="paramsArrow">▼</span>
-    </div>
-    <div id="paramsBody">
-      <!-- Background color -->
-      <div class="param-row">
-        <label>背景顏色</label>
-        <input type="color" id="bgColor" value="#ffffff"
-          style="width:36px;height:28px;border:1px solid #37474f;border-radius:6px;background:none;cursor:pointer;padding:2px;">
-        <button onclick="autoDetectBg()" style="background:#263238;border:1px solid #37474f;border-radius:6px;color:var(--muted);padding:4px 8px;cursor:pointer;font-size:0.75rem;">自動偵測</button>
-      </div>
-      <!-- Tolerance -->
-      <div class="param-row">
-        <label>去背容許值</label>
-        <input type="range" id="tolerance" min="0" max="100" value="30">
-        <span class="pval" id="tolVal">30</span>
-      </div>
-      <!-- Border -->
-      <div class="param-row">
-        <label>白邊寬度</label>
-        <input type="range" id="borderWidth" min="0" max="30" value="4">
-        <span class="pval" id="bdrVal">4</span>&nbsp;px
-      </div>
-      <!-- Toggles -->
-      <div class="param-row">
-        <label>自動置中</label>
-        <div class="toggle-wrap">
-          <label class="toggle"><input type="checkbox" id="autoCenter" checked><span class="tslider"></span></label>
-        </div>
-      </div>
-      <div class="param-row">
-        <label>強制正方形</label>
-        <div class="toggle-wrap">
-          <label class="toggle"><input type="checkbox" id="forceSquare"><span class="tslider"></span></label>
-        </div>
-      </div>
-      <div class="param-row">
-        <label>去除孔洞</label>
-        <div class="toggle-wrap">
-          <label class="toggle"><input type="checkbox" id="removeHoles" checked><span class="tslider"></span></label>
-        </div>
-      </div>
-    </div>
-
-    <div style="flex:1"></div>
-
-    <!-- Show gallery button (mobile) -->
-    <button class="btn btn-dark" id="showGalleryMobile"
-      style="margin:10px 14px 14px;display:none;"
-      onclick="toggleGallery()">🗂 查看已儲存貼圖</button>
+    <div id="stickerGrid"></div>
   </div>
+
 </div>
-
-<!-- Gallery drawer -->
-<div id="galleryDrawer">
-  <div class="gallery-header">
-    <h3>🗂 已儲存貼圖</h3>
-    <button onclick="toggleGallery()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;">✕</button>
-  </div>
-  <div id="gallery"></div>
-</div>
-
-<!-- Floating gallery button (mobile) -->
-<button id="galleryBtn" onclick="toggleGallery()">🗂</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 'use strict';
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let sourceImage = null;     // original HTMLImageElement
-let displayScale = 1;       // displayPixel / actualPixel
-let sel = { x:0, y:0, w:0, h:0 };  // selection in actual pixels
-let dragging = false;
-let dragStart = { x:0, y:0 };
-let stickers = [];          // array of { canvas, params }
-let history  = [];          // original crop regions for redo
+const MAX_SLOTS = 16;
+let sourceImage = null;
+let displayScale = 1;
+let sel = { x:0, y:0, w:0, h:0 };
+let dragging = false, dragStart = { x:0, y:0 };
+let stickers = new Array(MAX_SLOTS).fill(null);  // processed canvases
+let cropHistory = new Array(MAX_SLOTS).fill(null); // crop regions for redo
 let paramsOpen = false;
-let galleryOpen = false;
 
 // ─── DOM ──────────────────────────────────────────────────────────────────────
-const uploadScreen  = document.getElementById('uploadScreen');
-const editorScreen  = document.getElementById('editorScreen');
-const canvasWrap    = document.getElementById('canvasWrap');
-const canvasContainer = document.getElementById('canvasContainer');
-const imgCanvas     = document.getElementById('imgCanvas');
-const selCanvas     = document.getElementById('selCanvas');
-const imgCtx        = imgCanvas.getContext('2d');
-const selCtx        = selCanvas.getContext('2d');
+const uploadScreen    = document.getElementById('uploadScreen');
+const editorScreen    = document.getElementById('editorScreen');
+const imgCanvas       = document.getElementById('imgCanvas');
+const selCanvas       = document.getElementById('selCanvas');
+const imgCtx          = imgCanvas.getContext('2d');
+const selCtx          = selCanvas.getContext('2d');
 const inX = document.getElementById('inX');
 const inY = document.getElementById('inY');
 const inW = document.getElementById('inW');
 const inH = document.getElementById('inH');
-const savedCount    = document.getElementById('savedCount');
-const gallery       = document.getElementById('gallery');
+const savedCountEl    = document.getElementById('savedCount');
+const stickerGrid     = document.getElementById('stickerGrid');
+
+// ─── Init slots ───────────────────────────────────────────────────────────────
+function initSlots() {
+  stickerGrid.innerHTML = '';
+  for (let i = 0; i < MAX_SLOTS; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'slot';
+    cell.id = `slot-${i}`;
+    cell.innerHTML = `
+      <span class="slot-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="slot-empty-icon">+</span>`;
+    stickerGrid.appendChild(cell);
+  }
+  stickers.fill(null);
+  cropHistory.fill(null);
+  updateCounter();
+}
+
+function updateCounter() {
+  savedCountEl.textContent = stickers.filter(Boolean).length;
+}
+
+function setSlotProcessing(i) {
+  const cell = document.getElementById(`slot-${i}`);
+  if (!cell) return;
+  cell.className = 'slot processing';
+  cell.innerHTML = `<span class="slot-num">${String(i+1).padStart(2,'0')}</span>
+    <span style="font-size:1.2rem;animation:pulse .5s infinite alternate">⚙</span>`;
+}
+
+function setSlotResult(i, canvas) {
+  stickers[i] = canvas;
+  updateCounter();
+
+  const cell = document.getElementById(`slot-${i}`);
+  if (!cell) return;
+  cell.className = 'slot filled';
+
+  const thumb = makeThumb(canvas);
+  cell.innerHTML = `<span class="slot-num">${String(i+1).padStart(2,'0')}</span>`;
+  cell.appendChild(thumb);
+
+  const actions = document.createElement('div');
+  actions.className = 'slot-actions';
+  actions.innerHTML = `
+    <button class="dl-btn" onclick="downloadOne(${i})">↓ 下載</button>
+    <button class="rm-btn" onclick="clearSlot(${i})">✕ 移除</button>`;
+  cell.appendChild(actions);
+}
+
+function setSlotEmpty(i) {
+  stickers[i] = null;
+  const cell = document.getElementById(`slot-${i}`);
+  if (!cell) return;
+  cell.className = 'slot';
+  cell.innerHTML = `<span class="slot-num">${String(i+1).padStart(2,'0')}</span>
+    <span class="slot-empty-icon">+</span>`;
+  updateCounter();
+}
+
+function clearSlot(i) {
+  cropHistory[i] = null;
+  setSlotEmpty(i);
+}
+
+function clearAll() {
+  for (let i = 0; i < MAX_SLOTS; i++) setSlotEmpty(i);
+  cropHistory.fill(null);
+}
+
+function makeThumb(canvas) {
+  const c = document.createElement('canvas');
+  const maxPx = 120;
+  const s = Math.min(maxPx / canvas.width, maxPx / canvas.height, 1);
+  c.width  = Math.round(canvas.width  * s);
+  c.height = Math.round(canvas.height * s);
+  c.style.maxWidth = '100%';
+  c.style.maxHeight = '100%';
+  c.getContext('2d').drawImage(canvas, 0, 0, c.width, c.height);
+  return c;
+}
 
 // ─── File Load ────────────────────────────────────────────────────────────────
-function setupDrop(dropZone, input, handler) {
-  input.addEventListener('change', e => { if (e.target.files[0]) handler(e.target.files[0]); e.target.value=''; });
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault(); dropZone.classList.remove('drag');
-    const f = e.dataTransfer.files[0];
-    if (f && f.type.startsWith('image/')) handler(f);
-  });
-}
-setupDrop(document.getElementById('dropZone'), document.getElementById('mainFileInput'), loadImage);
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadFile(f);
+});
+document.getElementById('mainFileInput').addEventListener('change', e => {
+  if (e.target.files[0]) loadFile(e.target.files[0]); e.target.value='';
+});
+document.getElementById('uploadNextBtn').addEventListener('click', () =>
+  document.getElementById('nextFileInput').click());
+document.getElementById('nextFileInput').addEventListener('change', e => {
+  if (e.target.files[0]) loadFile(e.target.files[0]); e.target.value='';
+});
 
-document.getElementById('uploadNextBtn').addEventListener('click', () => document.getElementById('nextFileInput').click());
-document.getElementById('nextFileInput').addEventListener('change', e => { if (e.target.files[0]) loadImage(e.target.files[0]); e.target.value=''; });
-
-function loadImage(file) {
+function loadFile(file) {
   const img = new Image();
   const url = URL.createObjectURL(file);
   img.onload = () => {
@@ -539,18 +507,18 @@ function loadImage(file) {
     sourceImage = img;
     uploadScreen.style.display = 'none';
     editorScreen.style.display = 'flex';
-    document.getElementById('showGalleryMobile').style.display = 'block';
-    document.getElementById('galleryBtn').style.display = 'flex';
-    renderSourceToCanvas();
+    initSlots();
+    renderSource();
     resetSel();
   };
   img.src = url;
 }
 
-function renderSourceToCanvas() {
+function renderSource() {
   const img = sourceImage;
-  const maxW = window.innerWidth < 680 ? window.innerWidth : window.innerWidth - 260;
-  const maxH = window.innerHeight;
+  const wrap = document.getElementById('canvasWrap');
+  const maxW = wrap.clientWidth  || window.innerWidth - 250;
+  const maxH = wrap.clientHeight || window.innerHeight - 200;
   displayScale = Math.min(1, maxW / img.width, maxH / img.height);
   const dW = Math.round(img.width  * displayScale);
   const dH = Math.round(img.height * displayScale);
@@ -563,477 +531,394 @@ function renderSourceToCanvas() {
 function resetSel() {
   if (!sourceImage) return;
   sel = { x:0, y:0, w: sourceImage.width, h: sourceImage.height };
-  syncInputs();
-  drawSelection();
+  syncInputs(); drawSel();
 }
-
 function syncInputs() {
-  inX.value = Math.round(sel.x);
-  inY.value = Math.round(sel.y);
-  inW.value = Math.round(sel.w);
-  inH.value = Math.round(sel.h);
+  inX.value = Math.round(sel.x); inY.value = Math.round(sel.y);
+  inW.value = Math.round(sel.w); inH.value = Math.round(sel.h);
 }
-
 function syncFromInputs() {
   sel.x = Math.max(0, parseInt(inX.value)||0);
   sel.y = Math.max(0, parseInt(inY.value)||0);
   sel.w = Math.max(1, parseInt(inW.value)||1);
   sel.h = Math.max(1, parseInt(inH.value)||1);
   if (sourceImage) {
-    sel.x = Math.min(sel.x, sourceImage.width  - 1);
-    sel.y = Math.min(sel.y, sourceImage.height - 1);
-    sel.w = Math.min(sel.w, sourceImage.width  - sel.x);
-    sel.h = Math.min(sel.h, sourceImage.height - sel.y);
+    sel.x = Math.min(sel.x, sourceImage.width-1);
+    sel.y = Math.min(sel.y, sourceImage.height-1);
+    sel.w = Math.min(sel.w, sourceImage.width-sel.x);
+    sel.h = Math.min(sel.h, sourceImage.height-sel.y);
   }
-  drawSelection();
+  drawSel();
 }
-[inX, inY, inW, inH].forEach(el => el.addEventListener('input', syncFromInputs));
+[inX,inY,inW,inH].forEach(el => el.addEventListener('input', syncFromInputs));
 
-// Canvas drag
-canvasContainer.addEventListener('mousedown', e => {
+const canvasWrap = document.getElementById('canvasWrap');
+canvasWrap.addEventListener('mousedown', e => {
   if (!sourceImage) return;
   dragging = true;
   const r = imgCanvas.getBoundingClientRect();
-  dragStart = { x: (e.clientX - r.left) / displayScale, y: (e.clientY - r.top) / displayScale };
+  dragStart = { x:(e.clientX-r.left)/displayScale, y:(e.clientY-r.top)/displayScale };
+  e.preventDefault();
 });
 window.addEventListener('mousemove', e => {
-  if (!dragging) return;
+  if (!dragging || !sourceImage) return;
   const r = imgCanvas.getBoundingClientRect();
-  const cx = (e.clientX - r.left) / displayScale;
-  const cy = (e.clientY - r.top)  / displayScale;
+  const cx = (e.clientX-r.left)/displayScale;
+  const cy = (e.clientY-r.top) /displayScale;
   sel.x = Math.max(0, Math.min(dragStart.x, cx));
   sel.y = Math.max(0, Math.min(dragStart.y, cy));
-  sel.w = Math.abs(cx - dragStart.x);
-  sel.h = Math.abs(cy - dragStart.y);
-  if (sourceImage) {
-    sel.w = Math.min(sel.w, sourceImage.width  - sel.x);
-    sel.h = Math.min(sel.h, sourceImage.height - sel.y);
-  }
-  syncInputs();
-  drawSelection();
+  sel.w = Math.min(Math.abs(cx-dragStart.x), sourceImage.width-sel.x);
+  sel.h = Math.min(Math.abs(cy-dragStart.y), sourceImage.height-sel.y);
+  syncInputs(); drawSel();
 });
 window.addEventListener('mouseup', () => { dragging = false; });
 
-// Touch support
-canvasContainer.addEventListener('touchstart', e => {
-  if (!sourceImage) return;
-  e.preventDefault();
-  dragging = true;
-  const r = imgCanvas.getBoundingClientRect();
-  const t = e.touches[0];
-  dragStart = { x: (t.clientX - r.left) / displayScale, y: (t.clientY - r.top) / displayScale };
-}, { passive: false });
+// Touch
+canvasWrap.addEventListener('touchstart', e => {
+  if (!sourceImage) return; e.preventDefault(); dragging = true;
+  const r = imgCanvas.getBoundingClientRect(), t = e.touches[0];
+  dragStart = { x:(t.clientX-r.left)/displayScale, y:(t.clientY-r.top)/displayScale };
+}, { passive:false });
 window.addEventListener('touchmove', e => {
-  if (!dragging) return;
-  const r = imgCanvas.getBoundingClientRect();
-  const t = e.touches[0];
-  const cx = (t.clientX - r.left) / displayScale;
-  const cy = (t.clientY - r.top)  / displayScale;
-  sel.x = Math.max(0, Math.min(dragStart.x, cx));
-  sel.y = Math.max(0, Math.min(dragStart.y, cy));
-  sel.w = Math.abs(cx - dragStart.x);
-  sel.h = Math.abs(cy - dragStart.y);
-  if (sourceImage) {
-    sel.w = Math.min(sel.w, sourceImage.width  - sel.x);
-    sel.h = Math.min(sel.h, sourceImage.height - sel.y);
-  }
-  syncInputs();
-  drawSelection();
+  if (!dragging||!sourceImage) return;
+  const r = imgCanvas.getBoundingClientRect(), t = e.touches[0];
+  const cx=(t.clientX-r.left)/displayScale, cy=(t.clientY-r.top)/displayScale;
+  sel.x=Math.max(0,Math.min(dragStart.x,cx)); sel.y=Math.max(0,Math.min(dragStart.y,cy));
+  sel.w=Math.min(Math.abs(cx-dragStart.x),sourceImage.width-sel.x);
+  sel.h=Math.min(Math.abs(cy-dragStart.y),sourceImage.height-sel.y);
+  syncInputs(); drawSel();
 });
 window.addEventListener('touchend', () => { dragging = false; });
 
-function drawSelection() {
+function drawSel() {
   selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
-  if (!sel.w || !sel.h) return;
-  const sx = sel.x * displayScale, sy = sel.y * displayScale;
-  const sw = sel.w * displayScale, sh = sel.h * displayScale;
-
-  // Dimmed overlay outside selection
-  selCtx.fillStyle = 'rgba(0,0,0,0.45)';
-  selCtx.fillRect(0,  0,  selCanvas.width, sy);
-  selCtx.fillRect(0,  sy, sx, sh);
-  selCtx.fillRect(sx + sw, sy, selCanvas.width - sx - sw, sh);
-  selCtx.fillRect(0,  sy + sh, selCanvas.width, selCanvas.height - sy - sh);
-
-  // Dashed border
-  selCtx.strokeStyle = '#00e5ff';
-  selCtx.lineWidth = 1.5;
-  selCtx.setLineDash([6, 4]);
-  selCtx.strokeRect(sx + 0.5, sy + 0.5, sw - 1, sh - 1);
-  selCtx.setLineDash([]);
-
-  // Corner handles
-  const hs = 8;
-  selCtx.fillStyle = '#00e5ff';
-  [[sx, sy],[sx+sw-hs, sy],[sx, sy+sh-hs],[sx+sw-hs, sy+sh-hs]].forEach(([hx,hy]) => {
-    selCtx.fillRect(hx, hy, hs, hs);
-  });
+  if (!sel.w||!sel.h) return;
+  const sx=sel.x*displayScale, sy=sel.y*displayScale;
+  const sw=sel.w*displayScale, sh=sel.h*displayScale;
+  // dim overlay
+  selCtx.fillStyle='rgba(0,0,0,.45)';
+  selCtx.fillRect(0,0,selCanvas.width,sy);
+  selCtx.fillRect(0,sy,sx,sh);
+  selCtx.fillRect(sx+sw,sy,selCanvas.width-sx-sw,sh);
+  selCtx.fillRect(0,sy+sh,selCanvas.width,selCanvas.height-sy-sh);
+  // border
+  selCtx.strokeStyle='#00e5ff'; selCtx.lineWidth=1.5; selCtx.setLineDash([6,4]);
+  selCtx.strokeRect(sx+.5,sy+.5,sw-1,sh-1); selCtx.setLineDash([]);
+  // corners
+  const hs=8;
+  selCtx.fillStyle='#00e5ff';
+  [[sx,sy],[sx+sw-hs,sy],[sx,sy+sh-hs],[sx+sw-hs,sy+sh-hs]].forEach(([hx,hy])=>selCtx.fillRect(hx,hy,hs,hs));
+  // show grid lines if full image
+  if (sel.x===0&&sel.y===0&&sourceImage&&Math.abs(sel.w-sourceImage.width)<2&&Math.abs(sel.h-sourceImage.height)<2) {
+    selCtx.strokeStyle='rgba(0,229,255,.25)'; selCtx.lineWidth=1; selCtx.setLineDash([3,3]);
+    for(let i=1;i<4;i++){const lx=sw/4*i;selCtx.beginPath();selCtx.moveTo(sx+lx,sy);selCtx.lineTo(sx+lx,sy+sh);selCtx.stroke();}
+    for(let i=1;i<4;i++){const ly=sh/4*i;selCtx.beginPath();selCtx.moveTo(sx,sy+ly);selCtx.lineTo(sx+sw,sy+ly);selCtx.stroke();}
+    selCtx.setLineDash([]);
+  }
 }
 
-// ─── Buttons ──────────────────────────────────────────────────────────────────
+// ─── Action buttons ───────────────────────────────────────────────────────────
 document.getElementById('autoDetectBtn').addEventListener('click', autoDetect);
 document.getElementById('manualCropBtn').addEventListener('click', manualCrop);
 document.getElementById('resetSelBtn').addEventListener('click', resetSel);
 document.getElementById('downloadZipBtn').addEventListener('click', downloadZip);
+document.getElementById('dlAllBtn').addEventListener('click', downloadZip);
 document.getElementById('clearBtn').addEventListener('click', clearAll);
 document.getElementById('redoAllBtn').addEventListener('click', redoAll);
+document.getElementById('paramsToggle').addEventListener('click', () => {
+  paramsOpen = !paramsOpen;
+  document.getElementById('paramsBody').classList.toggle('open', paramsOpen);
+  document.getElementById('paramsArrow').textContent = paramsOpen ? '▲' : '▼';
+});
+document.getElementById('autoDetectBgBtn').addEventListener('click', autoDetectBg);
+document.getElementById('tolerance').addEventListener('input', () =>
+  document.getElementById('tolVal').textContent = document.getElementById('tolerance').value);
+document.getElementById('borderWidth').addEventListener('input', () =>
+  document.getElementById('bdrVal').textContent = document.getElementById('borderWidth').value);
+window.addEventListener('resize', () => { if (sourceImage) { renderSource(); drawSel(); } });
 
-function manualCrop() {
-  if (!sourceImage || !sel.w || !sel.h) return;
-  const crop = { x: Math.round(sel.x), y: Math.round(sel.y), w: Math.round(sel.w), h: Math.round(sel.h) };
-  history.push({ ...crop });
-  const result = cropAndProcess(crop);
-  if (result) addSticker(result);
-}
-
-function autoDetect() {
+// ─── Auto-detect 4×4 grid ─────────────────────────────────────────────────────
+async function autoDetect() {
   if (!sourceImage) return;
-  const img = sourceImage;
-  // Draw full image to offscreen canvas for analysis
-  const offCanvas = document.createElement('canvas');
-  offCanvas.width = img.width; offCanvas.height = img.height;
-  const offCtx = offCanvas.getContext('2d');
-  offCtx.drawImage(img, 0, 0);
-  const imageData = offCtx.getImageData(0, 0, img.width, img.height);
+  const btn = document.getElementById('autoDetectBtn');
+  btn.disabled = true; btn.textContent = '⚙ 偵測中…';
 
-  // Detect grid lines using row/column projections
-  const cols = detectGridLines(imageData, 'x', 4);
-  const rows = detectGridLines(imageData, 'y', 4);
+  // Draw full image to offscreen for analysis
+  const oc = document.createElement('canvas');
+  oc.width = sourceImage.width; oc.height = sourceImage.height;
+  oc.getContext('2d').drawImage(sourceImage, 0, 0);
+  const imageData = oc.getContext('2d').getImageData(0, 0, oc.width, oc.height);
 
-  history = [];
-  const crops = [];
-  for (let r = 0; r < rows.length - 1; r++) {
-    for (let c = 0; c < cols.length - 1; c++) {
-      crops.push({
-        x: cols[c], y: rows[r],
-        w: cols[c+1] - cols[c],
-        h: rows[r+1] - rows[r]
-      });
+  const colLines = detectGridLines(imageData, 'x', 4);  // 5 x-boundaries
+  const rowLines = detectGridLines(imageData, 'y', 4);  // 5 y-boundaries
+
+  // Clear all slots first
+  clearAll();
+  cropHistory.fill(null);
+
+  let idx = 0;
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++, idx++) {
+      setSlotProcessing(idx);
     }
   }
 
-  // Highlight first cell as selection preview
-  if (crops.length) {
-    const first = crops[0];
-    sel = { x: first.x, y: first.y, w: first.w, h: first.h };
-    syncInputs();
-    drawSelection();
+  // Process each cell asynchronously to keep UI responsive
+  idx = 0;
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++, idx++) {
+      const crop = {
+        x: colLines[c],
+        y: rowLines[r],
+        w: colLines[c+1] - colLines[c],
+        h: rowLines[r+1] - rowLines[r]
+      };
+      cropHistory[idx] = { ...crop };
+
+      // Highlight current cell in selection
+      sel = { x: crop.x, y: crop.y, w: crop.w, h: crop.h };
+      syncInputs(); drawSel();
+
+      await sleep(0); // yield to render
+      const result = cropAndProcess(crop);
+      if (result) setSlotResult(idx, result);
+      else setSlotEmpty(idx);
+    }
   }
 
-  crops.forEach(crop => {
-    history.push({ ...crop });
-    const result = cropAndProcess(crop);
-    if (result) addSticker(result);
-  });
+  // Reset selection to full image
+  resetSel();
+  btn.disabled = false; btn.textContent = '✦ 自動偵測貼圖';
 }
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function detectGridLines(imageData, axis, divisions) {
   const { data, width, height } = imageData;
-  const size = axis === 'x' ? width : height;
+  const size      = axis === 'x' ? width  : height;
   const crossSize = axis === 'x' ? height : width;
 
-  // Compute brightness projection
-  const projection = new Float32Array(size);
+  // Brightness projection
+  const proj = new Float32Array(size);
   for (let i = 0; i < size; i++) {
     let sum = 0;
     for (let j = 0; j < crossSize; j++) {
-      const idx = axis === 'x'
-        ? (j * width + i) * 4
-        : (i * width + j) * 4;
-      const r = data[idx], g = data[idx+1], b = data[idx+2], a = data[idx+3];
-      if (a < 128) { sum += 255 * 3; continue; }
-      sum += r + g + b;
+      const idx = axis === 'x' ? (j*width+i)*4 : (i*width+j)*4;
+      const a = data[idx+3];
+      if (a < 64) { sum += 255*3; continue; }
+      sum += data[idx] + data[idx+1] + data[idx+2];
     }
-    projection[i] = sum / crossSize;
+    proj[i] = sum / crossSize;
   }
 
-  // Smooth with box filter
+  // Smooth
   const smooth = new Float32Array(size);
-  const radius = Math.round(size * 0.01) || 2;
+  const r = Math.max(2, Math.round(size * 0.012));
   for (let i = 0; i < size; i++) {
-    let s = 0, count = 0;
-    for (let k = Math.max(0, i-radius); k <= Math.min(size-1, i+radius); k++) {
-      s += projection[k]; count++;
-    }
-    smooth[i] = s / count;
+    let s=0, n=0;
+    for (let k=Math.max(0,i-r); k<=Math.min(size-1,i+r); k++) { s+=proj[k]; n++; }
+    smooth[i] = s/n;
   }
 
-  // Find local maxima (bright = likely background/separator)
-  // Divide into [divisions] bands and find the valley between them
+  // Find separator positions: search around each expected grid line for the brightest band
   const lines = [0];
   const step = size / divisions;
   for (let d = 1; d < divisions; d++) {
-    const searchCenter = Math.round(d * step);
-    const searchRange  = Math.round(step * 0.35);
-    const lo = Math.max(1, searchCenter - searchRange);
-    const hi = Math.min(size - 2, searchCenter + searchRange);
-
-    // Find local maximum in this range (brightest = separator)
-    let bestIdx = searchCenter, bestVal = -Infinity;
-    for (let i = lo; i <= hi; i++) {
-      if (smooth[i] > bestVal) { bestVal = smooth[i]; bestIdx = i; }
-    }
+    const center = Math.round(d * step);
+    const range  = Math.round(step * 0.3);
+    const lo = Math.max(1, center - range);
+    const hi = Math.min(size-2, center + range);
+    let bestIdx=center, bestVal=-Infinity;
+    for (let i=lo; i<=hi; i++) if (smooth[i]>bestVal) { bestVal=smooth[i]; bestIdx=i; }
     lines.push(bestIdx);
   }
   lines.push(size);
   return lines;
 }
 
+// ─── Manual crop ──────────────────────────────────────────────────────────────
+function manualCrop() {
+  if (!sourceImage || !sel.w || !sel.h) return;
+  const emptyIdx = stickers.findIndex(s => !s);
+  if (emptyIdx < 0) { alert('已達 16 張上限'); return; }
+  const crop = { x:Math.round(sel.x), y:Math.round(sel.y), w:Math.round(sel.w), h:Math.round(sel.h) };
+  cropHistory[emptyIdx] = { ...crop };
+  setSlotProcessing(emptyIdx);
+  const result = cropAndProcess(crop);
+  if (result) setSlotResult(emptyIdx, result);
+  else setSlotEmpty(emptyIdx);
+}
+
+// ─── Redo all ─────────────────────────────────────────────────────────────────
+async function redoAll() {
+  if (!sourceImage) return;
+  const btn = document.getElementById('redoAllBtn');
+  btn.disabled = true; btn.textContent = '處理中…';
+  for (let i = 0; i < MAX_SLOTS; i++) {
+    if (!cropHistory[i]) { setSlotEmpty(i); continue; }
+    setSlotProcessing(i);
+    await sleep(0);
+    const result = cropAndProcess(cropHistory[i]);
+    if (result) setSlotResult(i, result);
+    else setSlotEmpty(i);
+  }
+  btn.disabled = false; btn.textContent = '↺ 全部重來';
+}
+
+// ─── Crop + process ───────────────────────────────────────────────────────────
 function cropAndProcess(crop) {
   if (!sourceImage) return null;
   const { x, y, w, h } = crop;
   if (w < 2 || h < 2) return null;
 
-  // Draw crop to canvas
-  const cropCanvas = document.createElement('canvas');
-  cropCanvas.width = w; cropCanvas.height = h;
-  cropCanvas.getContext('2d').drawImage(sourceImage, x, y, w, h, 0, 0, w, h);
+  const cropC = document.createElement('canvas');
+  cropC.width = w; cropC.height = h;
+  cropC.getContext('2d').drawImage(sourceImage, x, y, w, h, 0, 0, w, h);
 
-  if (document.getElementById('keepBg').checked) return cropCanvas;
-  return processImageElement(cropCanvas);
+  if (document.getElementById('keepBg').checked) return cropC;
+  return processCanvas(cropC);
 }
 
-function processImageElement(srcCanvas) {
-  const w = srcCanvas.width, h = srcCanvas.height;
-  const ctx = srcCanvas.getContext('2d');
-  const imageData = ctx.getImageData(0, 0, w, h);
-  const { data } = imageData;
+function processCanvas(srcC) {
+  const w=srcC.width, h=srcC.height;
+  const ctx=srcC.getContext('2d');
+  const { data } = ctx.getImageData(0, 0, w, h);
 
-  const bgColor = hexToRgb(document.getElementById('bgColor').value) || detectBgColor(data, w, h);
-  const threshold = (parseInt(document.getElementById('tolerance').value) / 100) * 441.67;
-  const borderWidth = parseInt(document.getElementById('borderWidth').value);
-  const autoCenter  = document.getElementById('autoCenter').checked;
-  const forceSquare = document.getElementById('forceSquare').checked;
-  const removeHoles = document.getElementById('removeHoles').checked;
+  const bgColor    = hexToRgb(document.getElementById('bgColor').value) || detectBgColor(data, w, h);
+  const threshold  = (parseInt(document.getElementById('tolerance').value)/100)*441.67;
+  const borderWidth= parseInt(document.getElementById('borderWidth').value);
+  const autoCenter = document.getElementById('autoCenter').checked;
+  const forceSquare= document.getElementById('forceSquare').checked;
+  const removeHoles= document.getElementById('removeHoles').checked;
 
   const removeMap = floodFillBg(data, w, h, bgColor, threshold);
   if (removeHoles) fillHoles(removeMap, w, h);
 
   const px = new Uint8ClampedArray(data);
-  for (let i = 0; i < w * h; i++) if (removeMap[i]) px[i*4+3] = 0;
+  for (let i=0; i<w*h; i++) if (removeMap[i]) px[i*4+3]=0;
 
   const bbox = getBBox(px, w, h);
-  if (!bbox) return srcCanvas;
+  if (!bbox) return srcC;
 
-  let cW = bbox.w, cH = bbox.h;
-  if (forceSquare) cW = cH = Math.max(cW, cH);
-  const offX = (autoCenter || forceSquare) ? Math.floor((cW - bbox.w) / 2) : 0;
-  const offY = (autoCenter || forceSquare) ? Math.floor((cH - bbox.h) / 2) : 0;
+  let cW=bbox.w, cH=bbox.h;
+  if (forceSquare) cW=cH=Math.max(cW,cH);
+  const offX=(autoCenter||forceSquare)?Math.floor((cW-bbox.w)/2):0;
+  const offY=(autoCenter||forceSquare)?Math.floor((cH-bbox.h)/2):0;
 
-  const trimCanvas = document.createElement('canvas');
-  trimCanvas.width = cW; trimCanvas.height = cH;
-  const trimCtx = trimCanvas.getContext('2d');
-
+  const trimC = document.createElement('canvas');
+  trimC.width=cW; trimC.height=cH;
+  const trimCtx = trimC.getContext('2d');
   const maskedC = document.createElement('canvas');
-  maskedC.width = w; maskedC.height = h;
-  maskedC.getContext('2d').putImageData(new ImageData(px, w, h), 0, 0);
+  maskedC.width=w; maskedC.height=h;
+  maskedC.getContext('2d').putImageData(new ImageData(px,w,h),0,0);
   trimCtx.drawImage(maskedC, bbox.x, bbox.y, bbox.w, bbox.h, offX, offY, bbox.w, bbox.h);
 
-  const outW = cW + borderWidth * 2;
-  const outH = cH + borderWidth * 2;
-  const outCanvas = document.createElement('canvas');
-  outCanvas.width = outW; outCanvas.height = outH;
-  const outCtx = outCanvas.getContext('2d');
+  const outW=cW+borderWidth*2, outH=cH+borderWidth*2;
+  const outC=document.createElement('canvas');
+  outC.width=outW; outC.height=outH;
+  const outCtx=outC.getContext('2d');
 
-  if (borderWidth > 0) {
-    const trimData = trimCtx.getImageData(0, 0, cW, cH).data;
-    const srcAlpha = new Uint8Array(cW * cH);
-    for (let i = 0; i < cW * cH; i++) srcAlpha[i] = trimData[i*4+3];
-
-    const expAlpha = new Uint8Array(outW * outH);
-    for (let y = 0; y < cH; y++)
-      for (let x = 0; x < cW; x++)
-        expAlpha[(y+borderWidth)*outW+(x+borderWidth)] = srcAlpha[y*cW+x];
-
-    const dilated = dilateAlpha(expAlpha, outW, outH, borderWidth);
-    const wd = outCtx.createImageData(outW, outH);
-    for (let i = 0; i < outW * outH; i++) {
-      if (dilated[i] > 10) { wd.data[i*4]=wd.data[i*4+1]=wd.data[i*4+2]=255; wd.data[i*4+3]=dilated[i]; }
-    }
-    outCtx.putImageData(wd, 0, 0);
+  if (borderWidth>0) {
+    const td=trimCtx.getImageData(0,0,cW,cH).data;
+    const sa=new Uint8Array(cW*cH);
+    for(let i=0;i<cW*cH;i++) sa[i]=td[i*4+3];
+    const ea=new Uint8Array(outW*outH);
+    for(let y=0;y<cH;y++) for(let x=0;x<cW;x++) ea[(y+borderWidth)*outW+(x+borderWidth)]=sa[y*cW+x];
+    const dil=dilateAlpha(ea,outW,outH,borderWidth);
+    const wd=outCtx.createImageData(outW,outH);
+    for(let i=0;i<outW*outH;i++) if(dil[i]>10){wd.data[i*4]=wd.data[i*4+1]=wd.data[i*4+2]=255;wd.data[i*4+3]=dil[i];}
+    outCtx.putImageData(wd,0,0);
   }
-
-  outCtx.drawImage(trimCanvas, borderWidth, borderWidth);
-  return outCanvas;
+  outCtx.drawImage(trimC, borderWidth, borderWidth);
+  return outC;
 }
 
-// ─── Gallery management ───────────────────────────────────────────────────────
-function addSticker(canvas) {
-  if (stickers.length >= 32) return;
-  const idx = stickers.length;
-  stickers.push(canvas);
-  savedCount.textContent = stickers.length;
-
-  const cell = document.createElement('div');
-  cell.className = 'sticker-cell';
-  cell.dataset.idx = idx;
-  cell.title = `${canvas.width}×${canvas.height}`;
-
-  const thumb = document.createElement('canvas');
-  const s = Math.min(80 / canvas.width, 80 / canvas.height, 1);
-  thumb.width  = Math.round(canvas.width  * s);
-  thumb.height = Math.round(canvas.height * s);
-  thumb.getContext('2d').drawImage(canvas, 0, 0, thumb.width, thumb.height);
-  cell.appendChild(thumb);
-
-  const rm = document.createElement('button');
-  rm.className = 'rm-btn';
-  rm.innerHTML = '✕';
-  rm.title = '刪除';
-  rm.addEventListener('click', e => { e.stopPropagation(); removeStickerAt(idx); });
-  cell.appendChild(rm);
-
-  gallery.appendChild(cell);
+// ─── Download ─────────────────────────────────────────────────────────────────
+function downloadOne(i) {
+  const c = stickers[i];
+  if (!c) return;
+  c.toBlob(blob => {
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`sticker_${String(i+1).padStart(2,'0')}.png`;
+    a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }, 'image/png');
 }
 
-function removeStickerAt(idx) {
-  stickers.splice(idx, 1);
-  refreshGallery();
-}
-function removeLast() {
-  if (!stickers.length) return;
-  stickers.pop();
-  history.pop();
-  refreshGallery();
-}
-function removeSelected() { /* future: selection in gallery */ }
-function clearAll() {
-  if (!stickers.length) return;
-  if (!confirm('確定要清空所有已儲存的貼圖嗎？')) return;
-  stickers = [];
-  history  = [];
-  refreshGallery();
-}
-
-function refreshGallery() {
-  gallery.innerHTML = '';
-  const tmp = [...stickers];
-  stickers = [];
-  tmp.forEach(c => addSticker(c));
-}
-
-async function redoAll() {
-  if (!history.length || !sourceImage) return;
-  stickers = [];
-  gallery.innerHTML = '';
-  savedCount.textContent = 0;
-  const crops = [...history];
-  history = [];
-  for (const crop of crops) {
-    history.push({ ...crop });
-    const result = cropAndProcess(crop);
-    if (result) addSticker(result);
-  }
-}
-
-// ─── Download ZIP ─────────────────────────────────────────────────────────────
 async function downloadZip() {
-  if (!stickers.length) { alert('尚未儲存任何貼圖'); return; }
-  const btn = document.getElementById('downloadZipBtn');
-  btn.disabled = true; btn.textContent = '打包中…';
+  const filled = stickers.filter(Boolean);
+  if (!filled.length) { alert('尚未有任何貼圖'); return; }
+  const btns = [document.getElementById('downloadZipBtn'), document.getElementById('dlAllBtn')];
+  btns.forEach(b => { if(b){b.disabled=true; b.textContent='打包中…';} });
 
   const zip = new JSZip();
-  await Promise.all(stickers.map((canvas, i) =>
-    new Promise(res => canvas.toBlob(blob => {
-      zip.file(`sticker_${String(i+1).padStart(2,'0')}.png`, blob);
-      res();
-    }, 'image/png'))
-  ));
+  await Promise.all(stickers.map((c,i) => {
+    if (!c) return null;
+    return new Promise(res => c.toBlob(blob => {
+      zip.file(`sticker_${String(i+1).padStart(2,'0')}.png`, blob); res();
+    }, 'image/png'));
+  }).filter(Boolean));
 
-  const blob = await zip.generateAsync({ type: 'blob' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'line_stickers.zip';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-
-  btn.disabled = false; btn.textContent = '↓ 下載 ZIP';
+  const blob = await zip.generateAsync({ type:'blob' });
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='line_stickers.zip'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  btns.forEach(b => { if(b){b.disabled=false; b.textContent= b.id==='dlAllBtn' ? '↓ 下載 ZIP' : '↓ 下載 ZIP';} });
+  document.getElementById('downloadZipBtn').textContent='↓ 下載 ZIP';
+  document.getElementById('dlAllBtn').textContent='↓ 下載 ZIP';
 }
 
-// ─── UI toggles ───────────────────────────────────────────────────────────────
-function toggleParams() {
-  paramsOpen = !paramsOpen;
-  document.getElementById('paramsBody').classList.toggle('open', paramsOpen);
-  document.getElementById('paramsArrow').textContent = paramsOpen ? '▲' : '▼';
-}
-function toggleGallery() {
-  galleryOpen = !galleryOpen;
-  document.getElementById('galleryDrawer').classList.toggle('open', galleryOpen);
-}
-
-// Param display sync
-document.getElementById('tolerance').addEventListener('input', () => {
-  document.getElementById('tolVal').textContent = document.getElementById('tolerance').value;
-});
-document.getElementById('borderWidth').addEventListener('input', () => {
-  document.getElementById('bdrVal').textContent = document.getElementById('borderWidth').value;
-});
-
-// Auto-detect background from source image
 function autoDetectBg() {
   if (!sourceImage) return;
-  const c = document.createElement('canvas');
-  c.width = sourceImage.width; c.height = sourceImage.height;
-  c.getContext('2d').drawImage(sourceImage, 0, 0);
-  const { data } = c.getContext('2d').getImageData(0, 0, c.width, c.height);
-  const color = detectBgColor(data, c.width, c.height);
-  document.getElementById('bgColor').value = rgbToHex(...color);
+  const c=document.createElement('canvas'); c.width=sourceImage.width; c.height=sourceImage.height;
+  c.getContext('2d').drawImage(sourceImage,0,0);
+  const {data}=c.getContext('2d').getImageData(0,0,c.width,c.height);
+  const color=detectBgColor(data,c.width,c.height);
+  document.getElementById('bgColor').value=rgbToHex(...color);
 }
 
-// Window resize
-window.addEventListener('resize', () => { if (sourceImage) { renderSourceToCanvas(); drawSelection(); } });
-
-// ─── Core Algorithms ──────────────────────────────────────────────────────────
-
-function detectBgColor(data, width, height) {
-  const sz = 8, samples = [];
-  const corners = [[0,0],[Math.max(0,width-sz),0],[0,Math.max(0,height-sz)],[Math.max(0,width-sz),Math.max(0,height-sz)]];
-  for (const [cx,cy] of corners)
-    for (let dy=0; dy<sz&&cy+dy<height; dy++)
-      for (let dx=0; dx<sz&&cx+dx<width; dx++) {
-        const i=((cy+dy)*width+(cx+dx))*4;
-        samples.push([data[i],data[i+1],data[i+2]]);
-      }
-  if (!samples.length) return [255,255,255];
-  const s = ch => samples.map(v=>v[ch]).sort((a,b)=>a-b);
-  const m = Math.floor(samples.length/2);
-  return [s(0)[m],s(1)[m],s(2)[m]];
+// ─── Algorithms ───────────────────────────────────────────────────────────────
+function detectBgColor(data,w,h){
+  const sz=8,s=[];
+  [[0,0],[Math.max(0,w-sz),0],[0,Math.max(0,h-sz)],[Math.max(0,w-sz),Math.max(0,h-sz)]].forEach(([cx,cy])=>{
+    for(let dy=0;dy<sz&&cy+dy<h;dy++) for(let dx=0;dx<sz&&cx+dx<w;dx++){const i=((cy+dy)*w+(cx+dx))*4;s.push([data[i],data[i+1],data[i+2]]);}
+  });
+  if(!s.length)return[255,255,255];
+  const m=Math.floor(s.length/2);
+  return[[...s.map(v=>v[0])].sort((a,b)=>a-b)[m],[...s.map(v=>v[1])].sort((a,b)=>a-b)[m],[...s.map(v=>v[2])].sort((a,b)=>a-b)[m]];
 }
 
-function floodFillBg(data, width, height, bgColor, threshold) {
-  const remove=new Uint8Array(width*height), visited=new Uint8Array(width*height);
-  const queue=new Int32Array(width*height); let qH=0,qT=0;
-  const [br,bg_,bb]=bgColor;
+function floodFillBg(data,w,h,bgColor,threshold){
+  const rm=new Uint8Array(w*h),vis=new Uint8Array(w*h),q=new Int32Array(w*h);
+  let qH=0,qT=0; const[br,bg_,bb]=bgColor;
   function dist(idx){const i=idx*4,dr=data[i]-br,dg=data[i+1]-bg_,db=data[i+2]-bb;return Math.sqrt(dr*dr+dg*dg+db*db);}
-  function tryAdd(x,y){if(x<0||x>=width||y<0||y>=height)return;const idx=y*width+x;if(visited[idx])return;visited[idx]=1;if(dist(idx)<=threshold){remove[idx]=1;queue[qT++]=idx;}}
-  for(let x=0;x<width;x++){tryAdd(x,0);tryAdd(x,height-1);}
-  for(let y=1;y<height-1;y++){tryAdd(0,y);tryAdd(width-1,y);}
-  while(qH<qT){const idx=queue[qH++];const x=idx%width,y=(idx-x)/width;tryAdd(x-1,y);tryAdd(x+1,y);tryAdd(x,y-1);tryAdd(x,y+1);}
-  return remove;
+  function add(x,y){if(x<0||x>=w||y<0||y>=h)return;const idx=y*w+x;if(vis[idx])return;vis[idx]=1;if(dist(idx)<=threshold){rm[idx]=1;q[qT++]=idx;}}
+  for(let x=0;x<w;x++){add(x,0);add(x,h-1);}for(let y=1;y<h-1;y++){add(0,y);add(w-1,y);}
+  while(qH<qT){const idx=q[qH++];const x=idx%w,y=(idx-x)/w;add(x-1,y);add(x+1,y);add(x,y-1);add(x,y+1);}
+  return rm;
 }
 
-function fillHoles(removeMap, width, height) {
-  const external=new Uint8Array(width*height),queue=new Int32Array(width*height);let qH=0,qT=0;
-  function tryAdd(x,y){if(x<0||x>=width||y<0||y>=height)return;const idx=y*width+x;if(external[idx]||!removeMap[idx])return;external[idx]=1;queue[qT++]=idx;}
-  for(let x=0;x<width;x++){tryAdd(x,0);tryAdd(x,height-1);}
-  for(let y=1;y<height-1;y++){tryAdd(0,y);tryAdd(width-1,y);}
-  while(qH<qT){const idx=queue[qH++];const x=idx%width,y=(idx-x)/width;tryAdd(x-1,y);tryAdd(x+1,y);tryAdd(x,y-1);tryAdd(x,y+1);}
-  for(let i=0;i<width*height;i++) if(removeMap[i]&&!external[i]) removeMap[i]=0;
+function fillHoles(rm,w,h){
+  const ext=new Uint8Array(w*h),q=new Int32Array(w*h);let qH=0,qT=0;
+  function add(x,y){if(x<0||x>=w||y<0||y>=h)return;const idx=y*w+x;if(ext[idx]||!rm[idx])return;ext[idx]=1;q[qT++]=idx;}
+  for(let x=0;x<w;x++){add(x,0);add(x,h-1);}for(let y=1;y<h-1;y++){add(0,y);add(w-1,y);}
+  while(qH<qT){const idx=q[qH++];const x=idx%w,y=(idx-x)/w;add(x-1,y);add(x+1,y);add(x,y-1);add(x,y+1);}
+  for(let i=0;i<w*h;i++)if(rm[i]&&!ext[i])rm[i]=0;
 }
 
-function getBBox(data, width, height) {
-  let minX=width,minY=height,maxX=-1,maxY=-1;
-  for(let y=0;y<height;y++) for(let x=0;x<width;x++) if(data[(y*width+x)*4+3]>10){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
-  if(maxX<0)return null;
-  return{x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
+function getBBox(data,w,h){
+  let x0=w,y0=h,x1=-1,y1=-1;
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++) if(data[(y*w+x)*4+3]>10){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+  if(x1<0)return null;
+  return{x:x0,y:y0,w:x1-x0+1,h:y1-y0+1};
 }
 
-function dilateAlpha(alpha, width, height, radius) {
-  const hPass=new Uint8Array(width*height);
-  for(let y=0;y<height;y++){const row=y*width;for(let x=0;x<width;x++){let max=0;const x0=Math.max(0,x-radius),x1=Math.min(width-1,x+radius);for(let nx=x0;nx<=x1;nx++){const v=alpha[row+nx];if(v>max){max=v;if(max===255)break;}}hPass[row+x]=max;}}
-  const result=new Uint8Array(width*height);
-  for(let x=0;x<width;x++){for(let y=0;y<height;y++){let max=0;const y0=Math.max(0,y-radius),y1=Math.min(height-1,y+radius);for(let ny=y0;ny<=y1;ny++){const v=hPass[ny*width+x];if(v>max){max=v;if(max===255)break;}}result[y*width+x]=max;}}
-  return result;
+function dilateAlpha(alpha,w,h,r){
+  const hP=new Uint8Array(w*h);
+  for(let y=0;y<h;y++){const row=y*w;for(let x=0;x<w;x++){let max=0;const x0=Math.max(0,x-r),x1=Math.min(w-1,x+r);for(let nx=x0;nx<=x1;nx++){const v=alpha[row+nx];if(v>max){max=v;if(max===255)break;}}hP[row+x]=max;}}
+  const res=new Uint8Array(w*h);
+  for(let x=0;x<w;x++){for(let y=0;y<h;y++){let max=0;const y0=Math.max(0,y-r),y1=Math.min(h-1,y+r);for(let ny=y0;ny<=y1;ny++){const v=hP[ny*w+x];if(v>max){max=v;if(max===255)break;}}res[y*w+x]=max;}}
+  return res;
 }
 
 function hexToRgb(hex){if(!hex||hex.length<7)return null;return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
