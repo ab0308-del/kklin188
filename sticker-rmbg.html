@@ -3,146 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LINE 貼圖去背神器</title>
+<title>LINE 貼圖裁切去背神器</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
-  --green: #06C755;
-  --green-dk: #04a041;
-  --bg: #f0f4f0;
-  --card: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --shadow: 0 2px 16px rgba(0,0,0,0.07);
-  --radius: 14px;
+  --bg:      #1a1a2e;
+  --panel:   #16213e;
+  --card:    #0f3460;
+  --green:   #4caf50;
+  --green2:  #2e7d32;
+  --purple:  #7c4dff;
+  --purple2: #4527a0;
+  --teal:    #00838f;
+  --teal2:   #006064;
+  --red:     #c62828;
+  --red2:    #b71c1c;
+  --text:    #e0e0e0;
+  --muted:   #9e9e9e;
+  --border:  #263238;
+  --accent:  #00e5ff;
 }
-
+html, body { height: 100%; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.container { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; }
-
-header {
-  text-align: center;
-  padding: 36px 0 28px;
-}
-header h1 {
-  font-size: 1.9rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #06C755, #00b0e0);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 6px;
-}
-header p { color: var(--muted); font-size: 0.95rem; }
-
-/* Layout */
-.layout {
-  display: grid;
-  grid-template-columns: 290px 1fr;
+/* ── Upload Screen ── */
+#uploadScreen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 20px;
-  align-items: start;
+  padding: 40px;
 }
-@media (max-width: 760px) {
-  .layout { grid-template-columns: 1fr; }
-}
-
-/* Controls panel */
-.controls {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 16px;
-}
-.controls-title {
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  color: var(--muted);
-  margin-bottom: 18px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--green);
-}
-.ctrl-group { margin-bottom: 18px; }
-.ctrl-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 7px;
-}
-.ctrl-label .val { color: var(--green); font-weight: 700; font-variant-numeric: tabular-nums; min-width: 28px; text-align: right; }
-.ctrl-hint { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
-
-input[type=range] {
-  -webkit-appearance: none;
+#uploadScreen h1 { font-size: 2rem; font-weight: 800; color: var(--accent); }
+#uploadScreen p  { color: var(--muted); }
+.drop-zone {
   width: 100%;
-  height: 5px;
-  border-radius: 5px;
-  background: var(--border);
-  outline: none;
+  max-width: 520px;
+  border: 2px dashed #37474f;
+  border-radius: 16px;
+  padding: 60px 30px;
+  text-align: center;
   cursor: pointer;
+  transition: .2s;
+  position: relative;
 }
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: var(--green);
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,.2);
-  transition: transform .1s;
-}
-input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.drop-zone:hover, .drop-zone.drag { border-color: var(--accent); background: rgba(0,229,255,.05); }
+.drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.drop-zone .icon { font-size: 3rem; margin-bottom: 12px; }
+.drop-zone strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
+.drop-zone span { font-size: 0.8rem; color: var(--muted); }
 
-.color-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-input[type=color] {
-  width: 44px; height: 36px;
-  border: 2px solid var(--border);
-  border-radius: 8px;
-  cursor: pointer;
-  padding: 2px;
-  flex-shrink: 0;
+/* ── Editor Screen ── */
+#editorScreen {
+  display: none;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.toggle-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-.toggle-row {
+/* Canvas area */
+#canvasWrap {
+  flex: 1;
+  overflow: auto;
+  background: #111;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-  font-weight: 600;
+  align-items: flex-start;
+  justify-content: flex-start;
+  position: relative;
 }
-.toggle {
+#canvasContainer {
   position: relative;
   display: inline-block;
-  width: 42px; height: 22px;
+  cursor: crosshair;
   flex-shrink: 0;
 }
+#imgCanvas   { display: block; }
+#selCanvas   { position: absolute; inset: 0; pointer-events: none; }
+
+/* ── Bottom Controls ── */
+#bottomPanel {
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Info bar */
+.info-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.coord-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+.coord-group label { color: var(--muted); white-space: nowrap; }
+.coord-group input {
+  width: 68px;
+  background: #263238;
+  border: 1px solid #37474f;
+  border-radius: 6px;
+  color: var(--text);
+  padding: 4px 7px;
+  font-size: 0.82rem;
+  font-family: monospace;
+}
+.coord-group input:focus { outline: none; border-color: var(--accent); }
+
+.spacer { flex: 1; }
+
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
 .toggle input { opacity: 0; width: 0; height: 0; }
-.slider {
-  position: absolute;
-  inset: 0;
-  background: #d1d5db;
+.tslider {
+  position: absolute; inset: 0;
+  background: #37474f;
   border-radius: 22px;
   transition: .2s;
   cursor: pointer;
 }
-.slider::before {
+.tslider::before {
   content: '';
   position: absolute;
   width: 16px; height: 16px;
@@ -150,743 +150,894 @@ input[type=color] {
   background: #fff;
   border-radius: 50%;
   transition: .2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,.2);
 }
-.toggle input:checked + .slider { background: var(--green); }
-.toggle input:checked + .slider::before { transform: translateX(20px); }
+.toggle input:checked + .tslider { background: var(--green); }
+.toggle input:checked + .tslider::before { transform: translateX(18px); }
+
+.counter {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.counter .num { font-size: 1.1rem; }
+
+.del-btns { display: flex; gap: 4px; }
+.del-btns button {
+  width: 26px; height: 26px;
+  background: #263238;
+  border: 1px solid #37474f;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.del-btns button:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* Action buttons */
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  padding: 10px 14px;
+}
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
 .btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 0.875rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
   transition: .15s;
-  text-decoration: none;
-}
-.btn-primary { background: var(--green); color: #fff; width: 100%; padding: 12px; font-size: 1rem; }
-.btn-primary:hover:not(:disabled) { background: var(--green-dk); }
-.btn-primary:disabled { background: #d1d5db; cursor: not-allowed; color: #9ca3af; }
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid var(--green);
-  color: var(--green);
-  padding: 7px 14px;
-}
-.btn-outline:hover { background: var(--green); color: #fff; }
-.btn-sm {
-  padding: 5px 11px;
-  font-size: 0.78rem;
-  border-radius: 7px;
-  border: 1.5px solid var(--green);
-  background: transparent;
-  color: var(--green);
-  cursor: pointer;
-  font-weight: 600;
-  transition: .15s;
   white-space: nowrap;
 }
-.btn-sm:hover { background: var(--green); color: #fff; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-purple { background: linear-gradient(135deg, var(--purple), var(--purple2)); color: #fff; }
+.btn-purple:hover:not(:disabled) { filter: brightness(1.15); }
+.btn-green  { background: linear-gradient(135deg, var(--green),  var(--green2));  color: #fff; }
+.btn-green:hover:not(:disabled)  { filter: brightness(1.15); }
+.btn-teal   { background: linear-gradient(135deg, var(--teal),   var(--teal2));   color: #fff; }
+.btn-teal:hover:not(:disabled)   { filter: brightness(1.15); }
+.btn-dark   { background: #263238; color: var(--text); border: 1px solid #37474f; }
+.btn-dark:hover:not(:disabled)   { background: #37474f; }
+.btn-red    { background: linear-gradient(135deg, var(--red), var(--red2)); color: #fff; }
+.btn-red:hover:not(:disabled)    { filter: brightness(1.15); }
 
-/* Right side */
-.right-side { display: flex; flex-direction: column; gap: 18px; }
-
-/* Upload zone */
-.upload-zone {
-  background: var(--card);
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 44px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: .2s;
-  position: relative;
-}
-.upload-zone:hover, .upload-zone.drag { border-color: var(--green); background: #f0fdf4; }
-.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.upload-icon { font-size: 2.8rem; margin-bottom: 10px; }
-.upload-zone p { font-weight: 600; margin-bottom: 4px; }
-.upload-zone small { color: var(--muted); font-size: 0.78rem; }
-
-/* Toolbar */
-.toolbar {
+/* ── Params panel ── */
+#paramsToggle {
   display: flex;
-  gap: 10px;
   align-items: center;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+  user-select: none;
 }
-.toolbar-status { font-size: 0.8rem; color: var(--muted); }
+#paramsToggle:hover { color: var(--text); }
+#paramsBody {
+  display: none;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+#paramsBody.open { display: block; }
 
-/* Preview grid */
-.preview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 14px;
+.param-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 0.82rem;
 }
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
+.param-row label { width: 90px; flex-shrink: 0; color: var(--muted); }
+.param-row input[type=range] {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.param-row .pval { width: 36px; text-align: right; color: var(--accent); font-variant-numeric: tabular-nums; }
+.param-row .toggle-wrap { margin-left: auto; }
+
+/* ── Gallery overlay ── */
+#galleryBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  font-size: 1.3rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,229,255,.4);
+  z-index: 100;
+  display: none;
+}
+#galleryDrawer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  max-height: 55vh;
+  background: var(--panel);
+  border-top: 2px solid var(--border);
+  z-index: 90;
+  transform: translateY(100%);
+  transition: transform .25s;
   overflow: hidden;
-  box-shadow: var(--shadow);
-  transition: transform .15s;
+  display: flex;
+  flex-direction: column;
 }
-.card:hover { transform: translateY(-2px); }
-.card-img {
-  position: relative;
+#galleryDrawer.open { transform: translateY(0); }
+
+.gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.gallery-header h3 { font-size: 0.9rem; color: var(--accent); }
+#gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+.sticker-cell {
+  background: repeating-conic-gradient(#263238 0% 25%, #1a1a2e 0% 50%) 0 0 / 12px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
   aspect-ratio: 1;
-  background: repeating-conic-gradient(#e5e7eb 0% 25%, #f9fafb 0% 50%) 0 0 / 14px 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   overflow: hidden;
+  cursor: pointer;
+  transition: .15s;
 }
-.card-img canvas, .card-img img {
-  max-width: 100%;
-  max-height: 160px;
-  object-fit: contain;
+.sticker-cell:hover { border-color: var(--accent); }
+.sticker-cell canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+.sticker-cell .rm-btn {
+  position: absolute; top: 3px; right: 3px;
+  width: 18px; height: 18px;
+  background: rgba(198,40,40,.85);
+  border: none; border-radius: 50%;
+  color: #fff; font-size: 0.65rem;
+  cursor: pointer;
+  display: none;
+  align-items: center; justify-content: center;
 }
-.card-body { padding: 8px 10px; }
-.card-name { font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
-.card-actions { display: flex; gap: 6px; align-items: center; }
+.sticker-cell:hover .rm-btn { display: flex; }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 3px 8px;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 600;
+/* Layout: side-by-side on wide screens */
+@media (min-width: 680px) {
+  #editorScreen { flex-direction: row; }
+  #canvasWrap { flex: 1; height: 100vh; }
+  #bottomPanel {
+    width: 260px;
+    flex-shrink: 0;
+    border-top: none;
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .info-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+  #galleryDrawer { left: auto; right: 0; width: 260px; max-height: 100vh; transform: translateX(100%); border-top: none; border-left: 2px solid var(--border); }
+  #galleryDrawer.open { transform: translateX(0); }
+  #galleryBtn { display: none !important; }
 }
-.badge-wait { background: #f3f4f6; color: #6b7280; }
-.badge-proc { background: #fef3c7; color: #92400e; }
-.badge-done { background: #d1fae5; color: #065f46; }
-.badge-err  { background: #fee2e2; color: #991b1b; }
-
-.spinner {
-  width: 16px; height: 16px;
-  border: 2px solid #fef3c7;
-  border-top-color: #d97706;
-  border-radius: 50%;
-  animation: spin .6s linear infinite;
-  display: inline-block;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Divider */
-.divider { height: 1px; background: var(--border); margin: 16px 0; }
-
-/* Tooltip */
-.tooltip-wrap { position: relative; display: inline-block; }
-.tooltip-wrap .tip {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1f2937;
-  color: #fff;
-  font-size: 0.7rem;
-  padding: 4px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .15s;
-}
-.tooltip-wrap:hover .tip { opacity: 1; }
 </style>
 </head>
 <body>
-<div class="container">
 
-  <header>
-    <h1>✂️ LINE 貼圖去背神器</h1>
-    <p>上傳貼圖圖片，調整參數，一鍵完成去背</p>
-  </header>
-
-  <div class="layout">
-
-    <!-- ===== Controls Panel ===== -->
-    <aside class="controls">
-      <div class="controls-title">⚙️ 參數設定</div>
-
-      <!-- Background Color -->
-      <div class="ctrl-group">
-        <div class="ctrl-label">背景顏色</div>
-        <div class="color-row">
-          <input type="color" id="bgColor" value="#ffffff">
-          <button class="btn-sm" id="autoDetectBtn">🔍 自動偵測</button>
-        </div>
-        <span class="ctrl-hint">點「自動偵測」從圖片四角取樣</span>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Tolerance -->
-      <div class="ctrl-group">
-        <div class="ctrl-label">
-          去背容許值
-          <span class="val" id="toleranceVal">30</span>
-        </div>
-        <input type="range" id="tolerance" min="0" max="100" value="30" step="1">
-        <span class="ctrl-hint">數值越高，與背景色相近的像素越容易被去除</span>
-      </div>
-
-      <!-- Border Width -->
-      <div class="ctrl-group">
-        <div class="ctrl-label">
-          白邊寬度
-          <span class="val" id="borderVal">4</span>&nbsp;px
-        </div>
-        <input type="range" id="borderWidth" min="0" max="30" value="4" step="1">
-        <span class="ctrl-hint">在貼圖主體周圍加入白色描邊外框</span>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Toggle Options -->
-      <div class="toggle-group">
-        <div class="toggle-row">
-          <span>自動置中</span>
-          <label class="toggle">
-            <input type="checkbox" id="autoCenter" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-        <span class="ctrl-hint" style="margin-top:-6px">去背後將主體置中於裁切範圍</span>
-
-        <div class="toggle-row">
-          <span>強制正方形</span>
-          <label class="toggle">
-            <input type="checkbox" id="forceSquare">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <span class="ctrl-hint" style="margin-top:-6px">輸出為正方形畫布（較長邊對齊）</span>
-
-        <div class="toggle-row">
-          <span>去除內部孔洞</span>
-          <label class="toggle">
-            <input type="checkbox" id="removeHoles" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-        <span class="ctrl-hint" style="margin-top:-6px">填補主體內部被誤去除的透明區域</span>
-      </div>
-
-      <div class="divider"></div>
-
-      <button class="btn btn-primary" id="processBtn" disabled>
-        ✨ 開始去背
-      </button>
-    </aside>
-
-    <!-- ===== Right Side ===== -->
-    <div class="right-side">
-
-      <!-- Upload Zone -->
-      <div class="upload-zone" id="uploadZone">
-        <input type="file" id="fileInput" accept="image/*" multiple>
-        <div class="upload-icon">🖼️</div>
-        <p>拖曳圖片到此，或點擊選擇</p>
-        <small>支援 JPG、PNG、GIF、WebP &nbsp;·&nbsp; 可一次上傳多張</small>
-      </div>
-
-      <!-- Toolbar -->
-      <div class="toolbar" id="toolbar" style="display:none">
-        <button class="btn btn-outline" id="downloadAllBtn">⬇ 全部下載 (ZIP)</button>
-        <button class="btn btn-outline" id="clearBtn" style="border-color:#ef4444;color:#ef4444">🗑 清除全部</button>
-        <span class="toolbar-status" id="statusText"></span>
-      </div>
-
-      <!-- Preview Grid -->
-      <div class="preview-grid" id="previewGrid"></div>
-
-    </div>
+<!-- ── Upload Screen ── -->
+<div id="uploadScreen">
+  <h1>✂️ LINE 貼圖裁切去背神器</h1>
+  <p>上傳一整張貼圖圖片，自動偵測 4×4 格並一鍵去背打包</p>
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="mainFileInput" accept="image/*">
+    <div class="icon">🖼️</div>
+    <strong>拖曳或點擊上傳圖片</strong>
+    <span>支援 JPG、PNG、GIF、WebP</span>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- ── Editor Screen ── -->
+<div id="editorScreen">
+
+  <!-- Canvas -->
+  <div id="canvasWrap">
+    <div id="canvasContainer">
+      <canvas id="imgCanvas"></canvas>
+      <canvas id="selCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Right / Bottom Panel -->
+  <div id="bottomPanel">
+
+    <!-- Coordinates + toggles -->
+    <div class="info-bar">
+      <div class="coord-group">
+        <label>X</label><input type="number" id="inX" value="0" min="0">
+        <label>Y</label><input type="number" id="inY" value="0" min="0">
+      </div>
+      <div class="coord-group">
+        <label>寬</label><input type="number" id="inW" value="0" min="1">
+        <label>高</label><input type="number" id="inH" value="0" min="1">
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="keepBg">
+            <span class="tslider"></span>
+          </label>
+          <span>保留背景</span>
+        </div>
+        <div class="counter">已儲存 <span class="num" id="savedCount">0</span> / 32</div>
+        <div class="del-btns">
+          <button title="刪除最後一張" onclick="removeLast()">−</button>
+          <button title="刪除選取" onclick="removeSelected()">×</button>
+          <button title="刪除全部" onclick="clearAll()">⌫</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="btn-grid">
+      <button class="btn btn-purple" id="autoDetectBtn">✦ 自動偵測貼圖</button>
+      <button class="btn btn-green"  id="manualCropBtn">✂ 手動裁切並加入</button>
+      <div class="btn-row">
+        <button class="btn btn-dark" id="uploadNextBtn">↑ 上傳下一張</button>
+        <input type="file" id="nextFileInput" accept="image/*" style="display:none">
+        <button class="btn btn-dark" id="resetSelBtn">↺ 重設框選</button>
+      </div>
+      <button class="btn btn-teal"  id="downloadZipBtn">↓ 下載 ZIP</button>
+      <div class="btn-row">
+        <button class="btn btn-red"  id="clearBtn">✕ 清空</button>
+        <button class="btn btn-dark" id="redoAllBtn">↺ 全部重來</button>
+      </div>
+    </div>
+
+    <!-- Parameters panel -->
+    <div id="paramsToggle" onclick="toggleParams()">
+      <span>⚙ 去背參數設定</span>
+      <span id="paramsArrow">▼</span>
+    </div>
+    <div id="paramsBody">
+      <!-- Background color -->
+      <div class="param-row">
+        <label>背景顏色</label>
+        <input type="color" id="bgColor" value="#ffffff"
+          style="width:36px;height:28px;border:1px solid #37474f;border-radius:6px;background:none;cursor:pointer;padding:2px;">
+        <button onclick="autoDetectBg()" style="background:#263238;border:1px solid #37474f;border-radius:6px;color:var(--muted);padding:4px 8px;cursor:pointer;font-size:0.75rem;">自動偵測</button>
+      </div>
+      <!-- Tolerance -->
+      <div class="param-row">
+        <label>去背容許值</label>
+        <input type="range" id="tolerance" min="0" max="100" value="30">
+        <span class="pval" id="tolVal">30</span>
+      </div>
+      <!-- Border -->
+      <div class="param-row">
+        <label>白邊寬度</label>
+        <input type="range" id="borderWidth" min="0" max="30" value="4">
+        <span class="pval" id="bdrVal">4</span>&nbsp;px
+      </div>
+      <!-- Toggles -->
+      <div class="param-row">
+        <label>自動置中</label>
+        <div class="toggle-wrap">
+          <label class="toggle"><input type="checkbox" id="autoCenter" checked><span class="tslider"></span></label>
+        </div>
+      </div>
+      <div class="param-row">
+        <label>強制正方形</label>
+        <div class="toggle-wrap">
+          <label class="toggle"><input type="checkbox" id="forceSquare"><span class="tslider"></span></label>
+        </div>
+      </div>
+      <div class="param-row">
+        <label>去除孔洞</label>
+        <div class="toggle-wrap">
+          <label class="toggle"><input type="checkbox" id="removeHoles" checked><span class="tslider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1"></div>
+
+    <!-- Show gallery button (mobile) -->
+    <button class="btn btn-dark" id="showGalleryMobile"
+      style="margin:10px 14px 14px;display:none;"
+      onclick="toggleGallery()">🗂 查看已儲存貼圖</button>
+  </div>
+</div>
+
+<!-- Gallery drawer -->
+<div id="galleryDrawer">
+  <div class="gallery-header">
+    <h3>🗂 已儲存貼圖</h3>
+    <button onclick="toggleGallery()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;">✕</button>
+  </div>
+  <div id="gallery"></div>
+</div>
+
+<!-- Floating gallery button (mobile) -->
+<button id="galleryBtn" onclick="toggleGallery()">🗂</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 'use strict';
 
 // ─── State ────────────────────────────────────────────────────────────────────
-let loadedFiles = [];
-let processedCanvases = [];
+let sourceImage = null;     // original HTMLImageElement
+let displayScale = 1;       // displayPixel / actualPixel
+let sel = { x:0, y:0, w:0, h:0 };  // selection in actual pixels
+let dragging = false;
+let dragStart = { x:0, y:0 };
+let stickers = [];          // array of { canvas, params }
+let history  = [];          // original crop regions for redo
+let paramsOpen = false;
+let galleryOpen = false;
 
-// ─── DOM refs ────────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const toleranceInput = $('tolerance');
-const borderInput    = $('borderWidth');
-const bgColorInput   = $('bgColor');
-const autoCenterCb   = $('autoCenter');
-const forceSquareCb  = $('forceSquare');
-const removeHolesCb  = $('removeHoles');
-const processBtn     = $('processBtn');
-const fileInput      = $('fileInput');
-const uploadZone     = $('uploadZone');
-const previewGrid    = $('previewGrid');
-const toolbar        = $('toolbar');
-const statusText     = $('statusText');
+// ─── DOM ──────────────────────────────────────────────────────────────────────
+const uploadScreen  = document.getElementById('uploadScreen');
+const editorScreen  = document.getElementById('editorScreen');
+const canvasWrap    = document.getElementById('canvasWrap');
+const canvasContainer = document.getElementById('canvasContainer');
+const imgCanvas     = document.getElementById('imgCanvas');
+const selCanvas     = document.getElementById('selCanvas');
+const imgCtx        = imgCanvas.getContext('2d');
+const selCtx        = selCanvas.getContext('2d');
+const inX = document.getElementById('inX');
+const inY = document.getElementById('inY');
+const inW = document.getElementById('inW');
+const inH = document.getElementById('inH');
+const savedCount    = document.getElementById('savedCount');
+const gallery       = document.getElementById('gallery');
 
-// ─── UI listeners ─────────────────────────────────────────────────────────────
-toleranceInput.addEventListener('input', () => $('toleranceVal').textContent = toleranceInput.value);
-borderInput.addEventListener('input',    () => $('borderVal').textContent    = borderInput.value);
+// ─── File Load ────────────────────────────────────────────────────────────────
+function setupDrop(dropZone, input, handler) {
+  input.addEventListener('change', e => { if (e.target.files[0]) handler(e.target.files[0]); e.target.value=''; });
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('image/')) handler(f);
+  });
+}
+setupDrop(document.getElementById('dropZone'), document.getElementById('mainFileInput'), loadImage);
 
-fileInput.addEventListener('change', e => { handleFiles(Array.from(e.target.files)); e.target.value = ''; });
+document.getElementById('uploadNextBtn').addEventListener('click', () => document.getElementById('nextFileInput').click());
+document.getElementById('nextFileInput').addEventListener('change', e => { if (e.target.files[0]) loadImage(e.target.files[0]); e.target.value=''; });
 
-uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
-uploadZone.addEventListener('drop', e => {
+function loadImage(file) {
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    sourceImage = img;
+    uploadScreen.style.display = 'none';
+    editorScreen.style.display = 'flex';
+    document.getElementById('showGalleryMobile').style.display = 'block';
+    document.getElementById('galleryBtn').style.display = 'flex';
+    renderSourceToCanvas();
+    resetSel();
+  };
+  img.src = url;
+}
+
+function renderSourceToCanvas() {
+  const img = sourceImage;
+  const maxW = window.innerWidth < 680 ? window.innerWidth : window.innerWidth - 260;
+  const maxH = window.innerHeight;
+  displayScale = Math.min(1, maxW / img.width, maxH / img.height);
+  const dW = Math.round(img.width  * displayScale);
+  const dH = Math.round(img.height * displayScale);
+  imgCanvas.width  = selCanvas.width  = dW;
+  imgCanvas.height = selCanvas.height = dH;
+  imgCtx.drawImage(img, 0, 0, dW, dH);
+}
+
+// ─── Selection ────────────────────────────────────────────────────────────────
+function resetSel() {
+  if (!sourceImage) return;
+  sel = { x:0, y:0, w: sourceImage.width, h: sourceImage.height };
+  syncInputs();
+  drawSelection();
+}
+
+function syncInputs() {
+  inX.value = Math.round(sel.x);
+  inY.value = Math.round(sel.y);
+  inW.value = Math.round(sel.w);
+  inH.value = Math.round(sel.h);
+}
+
+function syncFromInputs() {
+  sel.x = Math.max(0, parseInt(inX.value)||0);
+  sel.y = Math.max(0, parseInt(inY.value)||0);
+  sel.w = Math.max(1, parseInt(inW.value)||1);
+  sel.h = Math.max(1, parseInt(inH.value)||1);
+  if (sourceImage) {
+    sel.x = Math.min(sel.x, sourceImage.width  - 1);
+    sel.y = Math.min(sel.y, sourceImage.height - 1);
+    sel.w = Math.min(sel.w, sourceImage.width  - sel.x);
+    sel.h = Math.min(sel.h, sourceImage.height - sel.y);
+  }
+  drawSelection();
+}
+[inX, inY, inW, inH].forEach(el => el.addEventListener('input', syncFromInputs));
+
+// Canvas drag
+canvasContainer.addEventListener('mousedown', e => {
+  if (!sourceImage) return;
+  dragging = true;
+  const r = imgCanvas.getBoundingClientRect();
+  dragStart = { x: (e.clientX - r.left) / displayScale, y: (e.clientY - r.top) / displayScale };
+});
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const r = imgCanvas.getBoundingClientRect();
+  const cx = (e.clientX - r.left) / displayScale;
+  const cy = (e.clientY - r.top)  / displayScale;
+  sel.x = Math.max(0, Math.min(dragStart.x, cx));
+  sel.y = Math.max(0, Math.min(dragStart.y, cy));
+  sel.w = Math.abs(cx - dragStart.x);
+  sel.h = Math.abs(cy - dragStart.y);
+  if (sourceImage) {
+    sel.w = Math.min(sel.w, sourceImage.width  - sel.x);
+    sel.h = Math.min(sel.h, sourceImage.height - sel.y);
+  }
+  syncInputs();
+  drawSelection();
+});
+window.addEventListener('mouseup', () => { dragging = false; });
+
+// Touch support
+canvasContainer.addEventListener('touchstart', e => {
+  if (!sourceImage) return;
   e.preventDefault();
-  uploadZone.classList.remove('drag');
-  handleFiles(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
+  dragging = true;
+  const r = imgCanvas.getBoundingClientRect();
+  const t = e.touches[0];
+  dragStart = { x: (t.clientX - r.left) / displayScale, y: (t.clientY - r.top) / displayScale };
+}, { passive: false });
+window.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const r = imgCanvas.getBoundingClientRect();
+  const t = e.touches[0];
+  const cx = (t.clientX - r.left) / displayScale;
+  const cy = (t.clientY - r.top)  / displayScale;
+  sel.x = Math.max(0, Math.min(dragStart.x, cx));
+  sel.y = Math.max(0, Math.min(dragStart.y, cy));
+  sel.w = Math.abs(cx - dragStart.x);
+  sel.h = Math.abs(cy - dragStart.y);
+  if (sourceImage) {
+    sel.w = Math.min(sel.w, sourceImage.width  - sel.x);
+    sel.h = Math.min(sel.h, sourceImage.height - sel.y);
+  }
+  syncInputs();
+  drawSelection();
 });
+window.addEventListener('touchend', () => { dragging = false; });
 
-processBtn.addEventListener('click', processAll);
+function drawSelection() {
+  selCtx.clearRect(0, 0, selCanvas.width, selCanvas.height);
+  if (!sel.w || !sel.h) return;
+  const sx = sel.x * displayScale, sy = sel.y * displayScale;
+  const sw = sel.w * displayScale, sh = sel.h * displayScale;
 
-$('autoDetectBtn').addEventListener('click', () => {
-  if (!loadedFiles.length) { alert('請先上傳圖片'); return; }
-  loadImageElement(loadedFiles[0]).then(img => {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width; canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    const { data } = ctx.getImageData(0, 0, img.width, img.height);
-    const color = detectBgColor(data, img.width, img.height);
-    bgColorInput.value = rgbToHex(...color);
-  });
-});
+  // Dimmed overlay outside selection
+  selCtx.fillStyle = 'rgba(0,0,0,0.45)';
+  selCtx.fillRect(0,  0,  selCanvas.width, sy);
+  selCtx.fillRect(0,  sy, sx, sh);
+  selCtx.fillRect(sx + sw, sy, selCanvas.width - sx - sw, sh);
+  selCtx.fillRect(0,  sy + sh, selCanvas.width, selCanvas.height - sy - sh);
 
-$('downloadAllBtn').addEventListener('click', downloadAll);
+  // Dashed border
+  selCtx.strokeStyle = '#00e5ff';
+  selCtx.lineWidth = 1.5;
+  selCtx.setLineDash([6, 4]);
+  selCtx.strokeRect(sx + 0.5, sy + 0.5, sw - 1, sh - 1);
+  selCtx.setLineDash([]);
 
-$('clearBtn').addEventListener('click', () => {
-  if (!confirm('確定要清除所有圖片嗎？')) return;
-  loadedFiles = [];
-  processedCanvases = [];
-  previewGrid.innerHTML = '';
-  toolbar.style.display = 'none';
-  processBtn.disabled = true;
-  statusText.textContent = '';
-});
-
-// ─── File handling ────────────────────────────────────────────────────────────
-function handleFiles(files) {
-  if (!files.length) return;
-  files.forEach((file, i) => {
-    const idx = loadedFiles.length;
-    loadedFiles.push(file);
-    processedCanvases.push(null);
-    addCard(file, idx);
-  });
-  toolbar.style.display = 'flex';
-  processBtn.disabled = false;
-  updateStatus();
-}
-
-function addCard(file, idx) {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.id = `card-${idx}`;
-  card.innerHTML = `
-    <div class="card-img" id="cimg-${idx}">
-      <span style="color:#d1d5db;font-size:0.75rem">待處理</span>
-    </div>
-    <div class="card-body">
-      <div class="card-name" id="cname-${idx}" title="${file.name}">${file.name}</div>
-      <div class="card-actions" id="cact-${idx}">
-        <span class="badge badge-wait">⏳ 未處理</span>
-      </div>
-    </div>`;
-  previewGrid.appendChild(card);
-
-  // Show original preview
-  loadImageElement(file).then(img => {
-    const c = thumbCanvas(img, 160);
-    const el = $(`cimg-${idx}`);
-    el.innerHTML = '';
-    el.appendChild(c);
+  // Corner handles
+  const hs = 8;
+  selCtx.fillStyle = '#00e5ff';
+  [[sx, sy],[sx+sw-hs, sy],[sx, sy+sh-hs],[sx+sw-hs, sy+sh-hs]].forEach(([hx,hy]) => {
+    selCtx.fillRect(hx, hy, hs, hs);
   });
 }
 
-function thumbCanvas(img, maxSize) {
-  const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
-  const c = document.createElement('canvas');
-  c.width  = Math.round(img.width  * scale);
-  c.height = Math.round(img.height * scale);
-  c.style.maxWidth = '100%';
-  c.style.maxHeight = maxSize + 'px';
-  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-  return c;
+// ─── Buttons ──────────────────────────────────────────────────────────────────
+document.getElementById('autoDetectBtn').addEventListener('click', autoDetect);
+document.getElementById('manualCropBtn').addEventListener('click', manualCrop);
+document.getElementById('resetSelBtn').addEventListener('click', resetSel);
+document.getElementById('downloadZipBtn').addEventListener('click', downloadZip);
+document.getElementById('clearBtn').addEventListener('click', clearAll);
+document.getElementById('redoAllBtn').addEventListener('click', redoAll);
+
+function manualCrop() {
+  if (!sourceImage || !sel.w || !sel.h) return;
+  const crop = { x: Math.round(sel.x), y: Math.round(sel.y), w: Math.round(sel.w), h: Math.round(sel.h) };
+  history.push({ ...crop });
+  const result = cropAndProcess(crop);
+  if (result) addSticker(result);
 }
 
-function updateStatus() {
-  const done = processedCanvases.filter(Boolean).length;
-  statusText.textContent = `${done} / ${loadedFiles.length} 已完成`;
-}
+function autoDetect() {
+  if (!sourceImage) return;
+  const img = sourceImage;
+  // Draw full image to offscreen canvas for analysis
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = img.width; offCanvas.height = img.height;
+  const offCtx = offCanvas.getContext('2d');
+  offCtx.drawImage(img, 0, 0);
+  const imageData = offCtx.getImageData(0, 0, img.width, img.height);
 
-// ─── Batch processing ─────────────────────────────────────────────────────────
-async function processAll() {
-  processBtn.disabled = true;
-  processBtn.textContent = '⚙️ 處理中…';
+  // Detect grid lines using row/column projections
+  const cols = detectGridLines(imageData, 'x', 4);
+  const rows = detectGridLines(imageData, 'y', 4);
 
-  const params = getParams();
-
-  for (let i = 0; i < loadedFiles.length; i++) {
-    setCardStatus(i, 'proc');
-    try {
-      const img = await loadImageElement(loadedFiles[i]);
-      const result = processImageElement(img, params);
-      processedCanvases[i] = result;
-      setCardDone(i, result, loadedFiles[i].name);
-    } catch (err) {
-      console.error(err);
-      setCardStatus(i, 'err');
+  history = [];
+  const crops = [];
+  for (let r = 0; r < rows.length - 1; r++) {
+    for (let c = 0; c < cols.length - 1; c++) {
+      crops.push({
+        x: cols[c], y: rows[r],
+        w: cols[c+1] - cols[c],
+        h: rows[r+1] - rows[r]
+      });
     }
   }
 
-  processBtn.disabled = false;
-  processBtn.textContent = '✨ 開始去背';
-  updateStatus();
-}
+  // Highlight first cell as selection preview
+  if (crops.length) {
+    const first = crops[0];
+    sel = { x: first.x, y: first.y, w: first.w, h: first.h };
+    syncInputs();
+    drawSelection();
+  }
 
-function getParams() {
-  return {
-    tolerance:   parseInt(toleranceInput.value),
-    borderWidth: parseInt(borderInput.value),
-    autoCenter:  autoCenterCb.checked,
-    forceSquare: forceSquareCb.checked,
-    removeHoles: removeHolesCb.checked,
-    bgColorHex:  bgColorInput.value,
-  };
-}
-
-function setCardStatus(idx, type) {
-  const labels = { proc: '<span class="spinner"></span> 處理中', err: '❌ 失敗', done: '✅ 完成' };
-  const classes = { proc: 'badge-proc', err: 'badge-err', done: 'badge-done' };
-  $(`cact-${idx}`).innerHTML = `<span class="badge ${classes[type]}">${labels[type]}</span>`;
-}
-
-function setCardDone(idx, canvas, filename) {
-  const el = $(`cimg-${idx}`);
-  el.innerHTML = '';
-  el.appendChild(thumbCanvas({ width: canvas.width, height: canvas.height,
-    _src: canvas }, 160));
-
-  // draw thumb properly
-  const thumb = thumbCanvas2(canvas, 160);
-  el.innerHTML = '';
-  el.appendChild(thumb);
-
-  const baseName = filename.replace(/\.[^/.]+$/, '') + '_rmbg.png';
-  $(`cname-${idx}`).textContent = `${canvas.width}×${canvas.height} px`;
-  $(`cact-${idx}`).innerHTML = `
-    <span class="badge badge-done">✅ 完成</span>
-    <button class="btn-sm" onclick="downloadSingle(${idx},'${CSS.escape(baseName)}')">⬇</button>`;
-}
-
-function thumbCanvas2(srcCanvas, maxSize) {
-  const scale = Math.min(maxSize / srcCanvas.width, maxSize / srcCanvas.height, 1);
-  const c = document.createElement('canvas');
-  c.width  = Math.round(srcCanvas.width  * scale);
-  c.height = Math.round(srcCanvas.height * scale);
-  c.style.maxWidth = '100%';
-  c.style.maxHeight = maxSize + 'px';
-  c.getContext('2d').drawImage(srcCanvas, 0, 0, c.width, c.height);
-  return c;
-}
-
-function downloadSingle(idx, filename) {
-  const canvas = processedCanvases[idx];
-  if (!canvas) return;
-  canvas.toBlob(blob => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  }, 'image/png');
-}
-
-async function downloadAll() {
-  if (!processedCanvases.some(Boolean)) { alert('請先處理圖片'); return; }
-  const btn = $('downloadAllBtn');
-  btn.disabled = true;
-  btn.textContent = '打包中…';
-
-  const zip = new JSZip();
-  await Promise.all(processedCanvases.map((canvas, i) => {
-    if (!canvas) return null;
-    const name = loadedFiles[i].name.replace(/\.[^/.]+$/, '') + '_rmbg.png';
-    return new Promise(res => canvas.toBlob(blob => { zip.file(name, blob); res(); }, 'image/png'));
-  }).filter(Boolean));
-
-  const blob = await zip.generateAsync({ type: 'blob' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'stickers_rmbg.zip';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-
-  btn.disabled = false;
-  btn.textContent = '⬇ 全部下載 (ZIP)';
-}
-
-// ─── Core Processing ──────────────────────────────────────────────────────────
-
-function loadImageElement(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load failed')); };
-    img.src = url;
+  crops.forEach(crop => {
+    history.push({ ...crop });
+    const result = cropAndProcess(crop);
+    if (result) addSticker(result);
   });
 }
 
-function processImageElement(img, params) {
-  const { tolerance, borderWidth, autoCenter, forceSquare, removeHoles, bgColorHex } = params;
-
-  // Draw source to canvas
-  const srcCanvas = document.createElement('canvas');
-  srcCanvas.width = img.width; srcCanvas.height = img.height;
-  const srcCtx = srcCanvas.getContext('2d');
-  srcCtx.drawImage(img, 0, 0);
-
-  const imageData = srcCtx.getImageData(0, 0, img.width, img.height);
+function detectGridLines(imageData, axis, divisions) {
   const { data, width, height } = imageData;
+  const size = axis === 'x' ? width : height;
+  const crossSize = axis === 'x' ? height : width;
 
-  // Background color
-  const bgColor = hexToRgb(bgColorHex) || detectBgColor(data, width, height);
+  // Compute brightness projection
+  const projection = new Float32Array(size);
+  for (let i = 0; i < size; i++) {
+    let sum = 0;
+    for (let j = 0; j < crossSize; j++) {
+      const idx = axis === 'x'
+        ? (j * width + i) * 4
+        : (i * width + j) * 4;
+      const r = data[idx], g = data[idx+1], b = data[idx+2], a = data[idx+3];
+      if (a < 128) { sum += 255 * 3; continue; }
+      sum += r + g + b;
+    }
+    projection[i] = sum / crossSize;
+  }
 
-  // Tolerance → Euclidean distance threshold (max distance √(3·255²) ≈ 441.67)
-  const threshold = (tolerance / 100) * 441.67;
+  // Smooth with box filter
+  const smooth = new Float32Array(size);
+  const radius = Math.round(size * 0.01) || 2;
+  for (let i = 0; i < size; i++) {
+    let s = 0, count = 0;
+    for (let k = Math.max(0, i-radius); k <= Math.min(size-1, i+radius); k++) {
+      s += projection[k]; count++;
+    }
+    smooth[i] = s / count;
+  }
 
-  // Step 1: flood fill background from all 4 borders
-  const removeMap = floodFillBg(data, width, height, bgColor, threshold);
+  // Find local maxima (bright = likely background/separator)
+  // Divide into [divisions] bands and find the valley between them
+  const lines = [0];
+  const step = size / divisions;
+  for (let d = 1; d < divisions; d++) {
+    const searchCenter = Math.round(d * step);
+    const searchRange  = Math.round(step * 0.35);
+    const lo = Math.max(1, searchCenter - searchRange);
+    const hi = Math.min(size - 2, searchCenter + searchRange);
 
-  // Step 2: restore internal holes (transparent regions enclosed by opaque pixels)
-  if (removeHoles) fillHoles(removeMap, width, height);
+    // Find local maximum in this range (brightest = separator)
+    let bestIdx = searchCenter, bestVal = -Infinity;
+    for (let i = lo; i <= hi; i++) {
+      if (smooth[i] > bestVal) { bestVal = smooth[i]; bestIdx = i; }
+    }
+    lines.push(bestIdx);
+  }
+  lines.push(size);
+  return lines;
+}
 
-  // Step 3: apply mask → transparent
+function cropAndProcess(crop) {
+  if (!sourceImage) return null;
+  const { x, y, w, h } = crop;
+  if (w < 2 || h < 2) return null;
+
+  // Draw crop to canvas
+  const cropCanvas = document.createElement('canvas');
+  cropCanvas.width = w; cropCanvas.height = h;
+  cropCanvas.getContext('2d').drawImage(sourceImage, x, y, w, h, 0, 0, w, h);
+
+  if (document.getElementById('keepBg').checked) return cropCanvas;
+  return processImageElement(cropCanvas);
+}
+
+function processImageElement(srcCanvas) {
+  const w = srcCanvas.width, h = srcCanvas.height;
+  const ctx = srcCanvas.getContext('2d');
+  const imageData = ctx.getImageData(0, 0, w, h);
+  const { data } = imageData;
+
+  const bgColor = hexToRgb(document.getElementById('bgColor').value) || detectBgColor(data, w, h);
+  const threshold = (parseInt(document.getElementById('tolerance').value) / 100) * 441.67;
+  const borderWidth = parseInt(document.getElementById('borderWidth').value);
+  const autoCenter  = document.getElementById('autoCenter').checked;
+  const forceSquare = document.getElementById('forceSquare').checked;
+  const removeHoles = document.getElementById('removeHoles').checked;
+
+  const removeMap = floodFillBg(data, w, h, bgColor, threshold);
+  if (removeHoles) fillHoles(removeMap, w, h);
+
   const px = new Uint8ClampedArray(data);
-  for (let i = 0; i < width * height; i++) {
-    if (removeMap[i]) px[i * 4 + 3] = 0;
-  }
+  for (let i = 0; i < w * h; i++) if (removeMap[i]) px[i*4+3] = 0;
 
-  // Step 4: bounding box of remaining opaque content
-  const bbox = getBBox(px, width, height);
-  if (!bbox) {
-    const empty = document.createElement('canvas');
-    empty.width = empty.height = 100;
-    return empty;
-  }
+  const bbox = getBBox(px, w, h);
+  if (!bbox) return srcCanvas;
 
-  // Step 5: content canvas dimensions (optionally square)
-  let cW = bbox.w;
-  let cH = bbox.h;
+  let cW = bbox.w, cH = bbox.h;
   if (forceSquare) cW = cH = Math.max(cW, cH);
-
-  // Step 6: centering offset within content canvas
   const offX = (autoCenter || forceSquare) ? Math.floor((cW - bbox.w) / 2) : 0;
   const offY = (autoCenter || forceSquare) ? Math.floor((cH - bbox.h) / 2) : 0;
 
-  // Step 7: draw trimmed content onto content canvas
   const trimCanvas = document.createElement('canvas');
   trimCanvas.width = cW; trimCanvas.height = cH;
   const trimCtx = trimCanvas.getContext('2d');
 
-  const maskedCanvas = document.createElement('canvas');
-  maskedCanvas.width = width; maskedCanvas.height = height;
-  maskedCanvas.getContext('2d').putImageData(new ImageData(px, width, height), 0, 0);
+  const maskedC = document.createElement('canvas');
+  maskedC.width = w; maskedC.height = h;
+  maskedC.getContext('2d').putImageData(new ImageData(px, w, h), 0, 0);
+  trimCtx.drawImage(maskedC, bbox.x, bbox.y, bbox.w, bbox.h, offX, offY, bbox.w, bbox.h);
 
-  trimCtx.drawImage(maskedCanvas, bbox.x, bbox.y, bbox.w, bbox.h, offX, offY, bbox.w, bbox.h);
-
-  // Step 8: final canvas = content + white border padding
   const outW = cW + borderWidth * 2;
   const outH = cH + borderWidth * 2;
   const outCanvas = document.createElement('canvas');
   outCanvas.width = outW; outCanvas.height = outH;
   const outCtx = outCanvas.getContext('2d');
 
-  // Step 9: white outline via morphological dilation of alpha channel
   if (borderWidth > 0) {
     const trimData = trimCtx.getImageData(0, 0, cW, cH).data;
     const srcAlpha = new Uint8Array(cW * cH);
-    for (let i = 0; i < cW * cH; i++) srcAlpha[i] = trimData[i * 4 + 3];
+    for (let i = 0; i < cW * cH; i++) srcAlpha[i] = trimData[i*4+3];
 
-    // Embed into expanded canvas with border padding
     const expAlpha = new Uint8Array(outW * outH);
     for (let y = 0; y < cH; y++)
       for (let x = 0; x < cW; x++)
-        expAlpha[(y + borderWidth) * outW + (x + borderWidth)] = srcAlpha[y * cW + x];
+        expAlpha[(y+borderWidth)*outW+(x+borderWidth)] = srcAlpha[y*cW+x];
 
-    // 2-pass separable max filter (square dilation)
     const dilated = dilateAlpha(expAlpha, outW, outH, borderWidth);
-
-    // Paint white outline
-    const whiteData = outCtx.createImageData(outW, outH);
-    const wd = whiteData.data;
+    const wd = outCtx.createImageData(outW, outH);
     for (let i = 0; i < outW * outH; i++) {
-      if (dilated[i] > 10) {
-        wd[i*4]=wd[i*4+1]=wd[i*4+2]=255;
-        wd[i*4+3] = dilated[i];
-      }
+      if (dilated[i] > 10) { wd.data[i*4]=wd.data[i*4+1]=wd.data[i*4+2]=255; wd.data[i*4+3]=dilated[i]; }
     }
-    outCtx.putImageData(whiteData, 0, 0);
+    outCtx.putImageData(wd, 0, 0);
   }
 
-  // Step 10: draw content on top of white outline
   outCtx.drawImage(trimCanvas, borderWidth, borderWidth);
-
   return outCanvas;
 }
 
-// ─── Algorithms ───────────────────────────────────────────────────────────────
+// ─── Gallery management ───────────────────────────────────────────────────────
+function addSticker(canvas) {
+  if (stickers.length >= 32) return;
+  const idx = stickers.length;
+  stickers.push(canvas);
+  savedCount.textContent = stickers.length;
+
+  const cell = document.createElement('div');
+  cell.className = 'sticker-cell';
+  cell.dataset.idx = idx;
+  cell.title = `${canvas.width}×${canvas.height}`;
+
+  const thumb = document.createElement('canvas');
+  const s = Math.min(80 / canvas.width, 80 / canvas.height, 1);
+  thumb.width  = Math.round(canvas.width  * s);
+  thumb.height = Math.round(canvas.height * s);
+  thumb.getContext('2d').drawImage(canvas, 0, 0, thumb.width, thumb.height);
+  cell.appendChild(thumb);
+
+  const rm = document.createElement('button');
+  rm.className = 'rm-btn';
+  rm.innerHTML = '✕';
+  rm.title = '刪除';
+  rm.addEventListener('click', e => { e.stopPropagation(); removeStickerAt(idx); });
+  cell.appendChild(rm);
+
+  gallery.appendChild(cell);
+}
+
+function removeStickerAt(idx) {
+  stickers.splice(idx, 1);
+  refreshGallery();
+}
+function removeLast() {
+  if (!stickers.length) return;
+  stickers.pop();
+  history.pop();
+  refreshGallery();
+}
+function removeSelected() { /* future: selection in gallery */ }
+function clearAll() {
+  if (!stickers.length) return;
+  if (!confirm('確定要清空所有已儲存的貼圖嗎？')) return;
+  stickers = [];
+  history  = [];
+  refreshGallery();
+}
+
+function refreshGallery() {
+  gallery.innerHTML = '';
+  const tmp = [...stickers];
+  stickers = [];
+  tmp.forEach(c => addSticker(c));
+}
+
+async function redoAll() {
+  if (!history.length || !sourceImage) return;
+  stickers = [];
+  gallery.innerHTML = '';
+  savedCount.textContent = 0;
+  const crops = [...history];
+  history = [];
+  for (const crop of crops) {
+    history.push({ ...crop });
+    const result = cropAndProcess(crop);
+    if (result) addSticker(result);
+  }
+}
+
+// ─── Download ZIP ─────────────────────────────────────────────────────────────
+async function downloadZip() {
+  if (!stickers.length) { alert('尚未儲存任何貼圖'); return; }
+  const btn = document.getElementById('downloadZipBtn');
+  btn.disabled = true; btn.textContent = '打包中…';
+
+  const zip = new JSZip();
+  await Promise.all(stickers.map((canvas, i) =>
+    new Promise(res => canvas.toBlob(blob => {
+      zip.file(`sticker_${String(i+1).padStart(2,'0')}.png`, blob);
+      res();
+    }, 'image/png'))
+  ));
+
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'line_stickers.zip';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+
+  btn.disabled = false; btn.textContent = '↓ 下載 ZIP';
+}
+
+// ─── UI toggles ───────────────────────────────────────────────────────────────
+function toggleParams() {
+  paramsOpen = !paramsOpen;
+  document.getElementById('paramsBody').classList.toggle('open', paramsOpen);
+  document.getElementById('paramsArrow').textContent = paramsOpen ? '▲' : '▼';
+}
+function toggleGallery() {
+  galleryOpen = !galleryOpen;
+  document.getElementById('galleryDrawer').classList.toggle('open', galleryOpen);
+}
+
+// Param display sync
+document.getElementById('tolerance').addEventListener('input', () => {
+  document.getElementById('tolVal').textContent = document.getElementById('tolerance').value;
+});
+document.getElementById('borderWidth').addEventListener('input', () => {
+  document.getElementById('bdrVal').textContent = document.getElementById('borderWidth').value;
+});
+
+// Auto-detect background from source image
+function autoDetectBg() {
+  if (!sourceImage) return;
+  const c = document.createElement('canvas');
+  c.width = sourceImage.width; c.height = sourceImage.height;
+  c.getContext('2d').drawImage(sourceImage, 0, 0);
+  const { data } = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+  const color = detectBgColor(data, c.width, c.height);
+  document.getElementById('bgColor').value = rgbToHex(...color);
+}
+
+// Window resize
+window.addEventListener('resize', () => { if (sourceImage) { renderSourceToCanvas(); drawSelection(); } });
+
+// ─── Core Algorithms ──────────────────────────────────────────────────────────
 
 function detectBgColor(data, width, height) {
-  const sz = 8;
-  const samples = [];
-  const corners = [
-    [0, 0],
-    [Math.max(0, width - sz), 0],
-    [0, Math.max(0, height - sz)],
-    [Math.max(0, width - sz), Math.max(0, height - sz)],
-  ];
-  for (const [cx, cy] of corners) {
-    for (let dy = 0; dy < sz && cy + dy < height; dy++)
-      for (let dx = 0; dx < sz && cx + dx < width; dx++) {
-        const i = ((cy + dy) * width + (cx + dx)) * 4;
-        samples.push([data[i], data[i+1], data[i+2]]);
+  const sz = 8, samples = [];
+  const corners = [[0,0],[Math.max(0,width-sz),0],[0,Math.max(0,height-sz)],[Math.max(0,width-sz),Math.max(0,height-sz)]];
+  for (const [cx,cy] of corners)
+    for (let dy=0; dy<sz&&cy+dy<height; dy++)
+      for (let dx=0; dx<sz&&cx+dx<width; dx++) {
+        const i=((cy+dy)*width+(cx+dx))*4;
+        samples.push([data[i],data[i+1],data[i+2]]);
       }
-  }
-  if (!samples.length) return [255, 255, 255];
-  const sorted = ch => samples.map(s => s[ch]).sort((a,b) => a-b);
-  const mid = Math.floor(samples.length / 2);
-  return [sorted(0)[mid], sorted(1)[mid], sorted(2)[mid]];
+  if (!samples.length) return [255,255,255];
+  const s = ch => samples.map(v=>v[ch]).sort((a,b)=>a-b);
+  const m = Math.floor(samples.length/2);
+  return [s(0)[m],s(1)[m],s(2)[m]];
 }
 
 function floodFillBg(data, width, height, bgColor, threshold) {
-  const remove  = new Uint8Array(width * height);
-  const visited = new Uint8Array(width * height);
-  const queue   = new Int32Array(width * height);
-  let qH = 0, qT = 0;
-  const [br, bg, bb] = bgColor;
-
-  function dist(idx) {
-    const i = idx * 4;
-    const dr = data[i]   - br;
-    const dg = data[i+1] - bg;
-    const db = data[i+2] - bb;
-    return Math.sqrt(dr*dr + dg*dg + db*db);
-  }
-
-  function tryAdd(x, y) {
-    if (x < 0 || x >= width || y < 0 || y >= height) return;
-    const idx = y * width + x;
-    if (visited[idx]) return;
-    visited[idx] = 1;
-    if (dist(idx) <= threshold) { remove[idx] = 1; queue[qT++] = idx; }
-  }
-
-  for (let x = 0; x < width;  x++) { tryAdd(x, 0); tryAdd(x, height-1); }
-  for (let y = 1; y < height-1; y++) { tryAdd(0, y); tryAdd(width-1, y); }
-
-  while (qH < qT) {
-    const idx = queue[qH++];
-    const x = idx % width, y = (idx - x) / width;
-    tryAdd(x-1, y); tryAdd(x+1, y); tryAdd(x, y-1); tryAdd(x, y+1);
-  }
+  const remove=new Uint8Array(width*height), visited=new Uint8Array(width*height);
+  const queue=new Int32Array(width*height); let qH=0,qT=0;
+  const [br,bg_,bb]=bgColor;
+  function dist(idx){const i=idx*4,dr=data[i]-br,dg=data[i+1]-bg_,db=data[i+2]-bb;return Math.sqrt(dr*dr+dg*dg+db*db);}
+  function tryAdd(x,y){if(x<0||x>=width||y<0||y>=height)return;const idx=y*width+x;if(visited[idx])return;visited[idx]=1;if(dist(idx)<=threshold){remove[idx]=1;queue[qT++]=idx;}}
+  for(let x=0;x<width;x++){tryAdd(x,0);tryAdd(x,height-1);}
+  for(let y=1;y<height-1;y++){tryAdd(0,y);tryAdd(width-1,y);}
+  while(qH<qT){const idx=queue[qH++];const x=idx%width,y=(idx-x)/width;tryAdd(x-1,y);tryAdd(x+1,y);tryAdd(x,y-1);tryAdd(x,y+1);}
   return remove;
 }
 
 function fillHoles(removeMap, width, height) {
-  // Flood fill from border transparent pixels to find "external" transparency.
-  // Internal transparent pixels (holes) → restore to opaque.
-  const external = new Uint8Array(width * height);
-  const queue    = new Int32Array(width * height);
-  let qH = 0, qT = 0;
-
-  function tryAdd(x, y) {
-    if (x < 0 || x >= width || y < 0 || y >= height) return;
-    const idx = y * width + x;
-    if (external[idx] || !removeMap[idx]) return;
-    external[idx] = 1;
-    queue[qT++] = idx;
-  }
-
-  for (let x = 0; x < width;  x++) { tryAdd(x, 0); tryAdd(x, height-1); }
-  for (let y = 1; y < height-1; y++) { tryAdd(0, y); tryAdd(width-1, y); }
-
-  while (qH < qT) {
-    const idx = queue[qH++];
-    const x = idx % width, y = (idx - x) / width;
-    tryAdd(x-1, y); tryAdd(x+1, y); tryAdd(x, y-1); tryAdd(x, y+1);
-  }
-
-  // Internal holes: marked for removal but not connected to external transparent
-  for (let i = 0; i < width * height; i++)
-    if (removeMap[i] && !external[i]) removeMap[i] = 0;
+  const external=new Uint8Array(width*height),queue=new Int32Array(width*height);let qH=0,qT=0;
+  function tryAdd(x,y){if(x<0||x>=width||y<0||y>=height)return;const idx=y*width+x;if(external[idx]||!removeMap[idx])return;external[idx]=1;queue[qT++]=idx;}
+  for(let x=0;x<width;x++){tryAdd(x,0);tryAdd(x,height-1);}
+  for(let y=1;y<height-1;y++){tryAdd(0,y);tryAdd(width-1,y);}
+  while(qH<qT){const idx=queue[qH++];const x=idx%width,y=(idx-x)/width;tryAdd(x-1,y);tryAdd(x+1,y);tryAdd(x,y-1);tryAdd(x,y+1);}
+  for(let i=0;i<width*height;i++) if(removeMap[i]&&!external[i]) removeMap[i]=0;
 }
 
 function getBBox(data, width, height) {
-  let minX = width, minY = height, maxX = -1, maxY = -1;
-  for (let y = 0; y < height; y++)
-    for (let x = 0; x < width; x++)
-      if (data[(y * width + x) * 4 + 3] > 10) {
-        if (x < minX) minX = x; if (x > maxX) maxX = x;
-        if (y < minY) minY = y; if (y > maxY) maxY = y;
-      }
-  if (maxX < 0) return null;
-  return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+  let minX=width,minY=height,maxX=-1,maxY=-1;
+  for(let y=0;y<height;y++) for(let x=0;x<width;x++) if(data[(y*width+x)*4+3]>10){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+  if(maxX<0)return null;
+  return{x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
 }
 
 function dilateAlpha(alpha, width, height, radius) {
-  // Horizontal max-filter pass
-  const hPass = new Uint8Array(width * height);
-  for (let y = 0; y < height; y++) {
-    const row = y * width;
-    for (let x = 0; x < width; x++) {
-      let max = 0;
-      const x0 = Math.max(0, x - radius), x1 = Math.min(width - 1, x + radius);
-      for (let nx = x0; nx <= x1; nx++) {
-        const v = alpha[row + nx];
-        if (v > max) { max = v; if (max === 255) break; }
-      }
-      hPass[row + x] = max;
-    }
-  }
-  // Vertical max-filter pass
-  const result = new Uint8Array(width * height);
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-      let max = 0;
-      const y0 = Math.max(0, y - radius), y1 = Math.min(height - 1, y + radius);
-      for (let ny = y0; ny <= y1; ny++) {
-        const v = hPass[ny * width + x];
-        if (v > max) { max = v; if (max === 255) break; }
-      }
-      result[y * width + x] = max;
-    }
-  }
+  const hPass=new Uint8Array(width*height);
+  for(let y=0;y<height;y++){const row=y*width;for(let x=0;x<width;x++){let max=0;const x0=Math.max(0,x-radius),x1=Math.min(width-1,x+radius);for(let nx=x0;nx<=x1;nx++){const v=alpha[row+nx];if(v>max){max=v;if(max===255)break;}}hPass[row+x]=max;}}
+  const result=new Uint8Array(width*height);
+  for(let x=0;x<width;x++){for(let y=0;y<height;y++){let max=0;const y0=Math.max(0,y-radius),y1=Math.min(height-1,y+radius);for(let ny=y0;ny<=y1;ny++){const v=hPass[ny*width+x];if(v>max){max=v;if(max===255)break;}}result[y*width+x]=max;}}
   return result;
 }
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
-
-function hexToRgb(hex) {
-  if (!hex || hex.length < 7) return null;
-  return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
-}
-function rgbToHex(r, g, b) {
-  return '#' + [r, g, b].map(v => Math.round(v).toString(16).padStart(2,'0')).join('');
-}
+function hexToRgb(hex){if(!hex||hex.length<7)return null;return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');}
 </script>
 </body>
 </html>
